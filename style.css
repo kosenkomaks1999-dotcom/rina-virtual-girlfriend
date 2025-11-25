@@ -189,7 +189,7 @@ body {
     overflow-y: scroll;
     overflow-x: hidden;
     padding: 5px;
-    padding-bottom: 200px;
+    padding-bottom: 120px;
     display: flex;
     flex-direction: column;
     gap: 8px;
