@@ -33,21 +33,64 @@ class EchoGame {
         // Расширяем приложение на весь экран
         this.tg.expand();
         
-        // Устанавливаем цвет заголовка
-        this.tg.setHeaderColor('#000000');
+        // Устанавливаем цвет заголовка (только если поддерживается)
+        if (this.tg.setHeaderColor) {
+            try {
+                this.tg.setHeaderColor('#000000');
+            } catch (e) {
+                console.log('Header color not supported');
+            }
+        }
         
-        // Включаем кнопку закрытия
-        this.tg.enableClosingConfirmation();
+        // Включаем кнопку закрытия (только если поддерживается)
+        if (this.tg.enableClosingConfirmation) {
+            try {
+                this.tg.enableClosingConfirmation();
+            } catch (e) {
+                console.log('Closing confirmation not supported');
+            }
+        }
         
         // Готовность приложения
         this.tg.ready();
     }
     
     setupCanvas() {
-        this.canvas = document.getElementById('characterCanvas');
-        this.ctx = this.canvas.getContext('2d');
-        this.ctx.imageSmoothingEnabled = false;
-        this.drawCharacter();
+        this.characterImg = document.getElementById('characterImage');
+        this.signalNoise = document.getElementById('signalNoise');
+        this.applyGlitchEffect();
+        this.applySignalNoise();
+    }
+    
+    applyGlitchEffect() {
+        // Применяем глитч эффект к изображению при низкой стабильности
+        setInterval(() => {
+            if (this.stability < 50 && Math.random() < 0.3) {
+                const effects = [
+                    'hue-rotate(180deg) saturate(3)',
+                    'invert(1) hue-rotate(90deg)',
+                    'contrast(2) brightness(1.5) hue-rotate(270deg)',
+                    'saturate(5) hue-rotate(180deg)'
+                ];
+                this.characterImg.style.filter = effects[Math.floor(Math.random() * effects.length)];
+                
+                setTimeout(() => {
+                    this.characterImg.style.filter = '';
+                }, 100);
+            }
+        }, 500);
+    }
+    
+    applySignalNoise() {
+        // Волны помех теперь постоянные, просто меняется интенсивность
+        setInterval(() => {
+            // При низкой стабильности увеличиваем интенсивность
+            if (this.stability < 50) {
+                this.signalNoise.style.opacity = '0.9';
+            } else {
+                this.signalNoise.style.opacity = '0.6';
+            }
+        }, 1000);
     }
     
     setupEventListeners() {
@@ -67,101 +110,55 @@ class EchoGame {
         this.showScene(this.getScene(0));
     }
     
-    drawCharacter() {
-        const ctx = this.ctx;
-        const w = this.canvas.width;
-        const h = this.canvas.height;
-        
-        ctx.fillStyle = '#000';
-        ctx.fillRect(0, 0, w, h);
-        
-        const p = 4; // размер пикселя
-        const cx = w / 2;
-        const cy = h / 2;
-        
-        // Определяем состояние персонажа
-        const isGlitched = this.stability < 50;
-        const isDistressed = this.humanity < 40;
-        
-        // Голова
-        ctx.fillStyle = isGlitched ? '#00ff00' : '#00ff00';
-        this.fillRect(ctx, cx - 6*p, cy - 8*p, 12*p, 14*p);
-        
-        // Волосы
-        ctx.fillStyle = '#00ff00';
-        this.fillRect(ctx, cx - 8*p, cy - 10*p, 16*p, 4*p);
-        this.fillRect(ctx, cx - 10*p, cy - 8*p, 4*p, 6*p);
-        this.fillRect(ctx, cx + 6*p, cy - 8*p, 4*p, 6*p);
-        
-        // Глаза
-        if (isGlitched && Math.random() < 0.3) {
-            // Глитч глаза
-            ctx.fillStyle = '#ff0000';
-            this.fillRect(ctx, cx - 4*p, cy - 4*p, 2*p, 2*p);
-            this.fillRect(ctx, cx + 2*p, cy - 4*p, 2*p, 2*p);
-        } else {
-            ctx.fillStyle = '#000';
-            this.fillRect(ctx, cx - 4*p, cy - 4*p, 2*p, 3*p);
-            this.fillRect(ctx, cx + 2*p, cy - 4*p, 2*p, 3*p);
-        }
-        
-        // Рот
-        ctx.fillStyle = '#000';
-        if (isDistressed) {
-            // Грустный рот
-            this.fillRect(ctx, cx - 2*p, cy + 2*p, 4*p, p);
-        } else if (this.trust > 70) {
-            // Улыбка
-            this.fillRect(ctx, cx - 3*p, cy + 2*p, 6*p, p);
-            this.fillRect(ctx, cx - 4*p, cy + p, 2*p, p);
-            this.fillRect(ctx, cx + 2*p, cy + p, 2*p, p);
-        } else {
-            // Нейтральный
-            this.fillRect(ctx, cx - 2*p, cy + 2*p, 4*p, p);
-        }
-        
-        // Тело
-        ctx.fillStyle = '#00ff00';
-        this.fillRect(ctx, cx - 6*p, cy + 6*p, 12*p, 8*p);
-        
-        // Глитч эффект
-        if (isGlitched) {
-            this.applyGlitch();
-        }
-        
-        // Перерисовка каждые 100мс для анимации
-        setTimeout(() => this.drawCharacter(), 100);
-    }
-    
-    fillRect(ctx, x, y, w, h) {
-        ctx.fillRect(Math.floor(x), Math.floor(y), Math.floor(w), Math.floor(h));
-    }
-    
-    applyGlitch() {
-        const imageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
-        const data = imageData.data;
-        
-        for (let i = 0; i < data.length; i += 4) {
-            if (Math.random() < 0.05) {
-                data[i] = 255;     // R
-                data[i + 1] = 0;   // G
-                data[i + 2] = 0;   // B
-            }
-        }
-        
-        this.ctx.putImageData(imageData, 0, 0);
-    }
+
     
     showScene(scene) {
-        if (!scene) return;
+        if (!scene) {
+            // Конец игры
+            this.addMessage('СИСТЕМА: История завершена. Спасибо за игру.', 'system');
+            return;
+        }
+        
+        // Обновляем день если изменился
+        if (scene.day && scene.day !== this.day) {
+            this.day = scene.day;
+            document.getElementById('dayNumber').textContent = this.day;
+            this.saveGame();
+        }
+        
+        // Проверяем мини-игру
+        if (scene.minigame) {
+            this.showMessages(scene.messages, 0, () => {
+                // Запускаем мини-игру
+                this.startMinigame(scene.minigame, scene.onSuccess);
+            });
+            return;
+        }
         
         // Показываем сообщения Ани
         if (scene.messages) {
             this.showMessages(scene.messages, 0, () => {
                 // После всех сообщений показываем выборы
-                if (scene.choices) {
+                if (scene.choices && scene.choices.length > 0) {
                     this.showChoices(scene.choices);
+                } else {
+                    // Если нет выборов - это концовка
+                    setTimeout(() => {
+                        this.addMessage('СИСТЕМА: Нажмите F5 для новой игры.', 'system');
+                    }, 3000);
                 }
+            });
+        }
+    }
+    
+    startMinigame(type, nextSceneId) {
+        if (type === 'neuron_connect' || type === 'data_cleanup') {
+            startDataCleanup(() => {
+                // После успешного завершения мини-игры
+                this.stability = 70; // Восстанавливаем стабильность
+                this.updateStats();
+                this.currentScene = nextSceneId;
+                this.showScene(this.getScene(nextSceneId));
             });
         }
     }
@@ -202,13 +199,10 @@ class EchoGame {
         
         messagesContainer.appendChild(messageDiv);
         
-        // Принудительная прокрутка вниз с задержкой для рендеринга
+        // Прокрутка вниз с небольшой задержкой
         setTimeout(() => {
-            messagesContainer.scrollTo({
-                top: messagesContainer.scrollHeight,
-                behavior: 'smooth'
-            });
-        }, 50);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }, 100);
     }
     
     showChoices(choices) {
@@ -223,17 +217,16 @@ class EchoGame {
             button.addEventListener('click', () => this.makeChoice(choice, index));
             container.appendChild(button);
         });
-        
-        // Прокручиваем к выборам
-        setTimeout(() => {
-            container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }, 100);
     }
     
     makeChoice(choice, index) {
         // Вибрация при выборе (если доступна)
-        if (this.tg.HapticFeedback) {
-            this.tg.HapticFeedback.impactOccurred('light');
+        if (this.tg.HapticFeedback && this.tg.HapticFeedback.impactOccurred) {
+            try {
+                this.tg.HapticFeedback.impactOccurred('light');
+            } catch (e) {
+                console.log('Haptic feedback not supported');
+            }
         }
         
         // Скрываем выборы
@@ -293,12 +286,6 @@ class EchoGame {
     updateStats() {
         document.getElementById('stabilityBar').style.width = this.stability + '%';
         document.getElementById('stabilityValue').textContent = Math.floor(this.stability) + '%';
-        
-        document.getElementById('trustBar').style.width = this.trust + '%';
-        document.getElementById('trustValue').textContent = Math.floor(this.trust) + '%';
-        
-        document.getElementById('humanityBar').style.width = this.humanity + '%';
-        document.getElementById('humanityValue').textContent = Math.floor(this.humanity) + '%';
     }
     
     checkWarnings() {
@@ -306,19 +293,13 @@ class EchoGame {
         
         if (this.stability < 30) {
             warningEl.textContent = '⚠ КРИТИЧЕСКАЯ НЕСТАБИЛЬНОСТЬ';
-            if (this.tg.HapticFeedback) {
-                this.tg.HapticFeedback.notificationOccurred('error');
+            if (this.tg.HapticFeedback && this.tg.HapticFeedback.notificationOccurred) {
+                try {
+                    this.tg.HapticFeedback.notificationOccurred('error');
+                } catch (e) {}
             }
-        } else if (this.humanity < 30) {
-            warningEl.textContent = '⚠ ПОТЕРЯ ЛИЧНОСТИ';
-            if (this.tg.HapticFeedback) {
-                this.tg.HapticFeedback.notificationOccurred('warning');
-            }
-        } else if (this.trust < 20) {
-            warningEl.textContent = '⚠ НИЗКОЕ ДОВЕРИЕ';
-            if (this.tg.HapticFeedback) {
-                this.tg.HapticFeedback.notificationOccurred('warning');
-            }
+        } else if (this.stability < 50) {
+            warningEl.textContent = '⚠ НЕСТАБИЛЬНОЕ СОЕДИНЕНИЕ';
         } else {
             warningEl.textContent = '';
         }
@@ -335,9 +316,14 @@ class EchoGame {
             choices: this.choices
         };
         
-        // Сохранение в Telegram Cloud Storage
-        if (this.tg.CloudStorage) {
-            this.tg.CloudStorage.setItem('echoSave', JSON.stringify(saveData));
+        // Сохранение в Telegram Cloud Storage (если поддерживается)
+        if (this.tg.CloudStorage && typeof this.tg.CloudStorage.setItem === 'function') {
+            try {
+                this.tg.CloudStorage.setItem('echoSave', JSON.stringify(saveData));
+            } catch (e) {
+                // Fallback в localStorage при ошибке
+                localStorage.setItem('echoSave', JSON.stringify(saveData));
+            }
         } else {
             // Fallback в localStorage
             localStorage.setItem('echoSave', JSON.stringify(saveData));
@@ -345,13 +331,21 @@ class EchoGame {
     }
     
     loadGame() {
-        // Загрузка из Telegram Cloud Storage
-        if (this.tg.CloudStorage) {
-            this.tg.CloudStorage.getItem('echoSave', (error, data) => {
-                if (!error && data) {
-                    this.restoreGame(JSON.parse(data));
+        // Загрузка из Telegram Cloud Storage (если поддерживается)
+        if (this.tg.CloudStorage && typeof this.tg.CloudStorage.getItem === 'function') {
+            try {
+                this.tg.CloudStorage.getItem('echoSave', (error, data) => {
+                    if (!error && data) {
+                        this.restoreGame(JSON.parse(data));
+                    }
+                });
+            } catch (e) {
+                // Fallback из localStorage при ошибке
+                const saved = localStorage.getItem('echoSave');
+                if (saved) {
+                    this.restoreGame(JSON.parse(saved));
                 }
-            });
+            }
         } else {
             // Fallback из localStorage
             const saved = localStorage.getItem('echoSave');
@@ -379,6 +373,23 @@ class EchoGame {
     }
     
     getStoryScenes() {
+        // Загружаем историю по дням
+        let allScenes = [];
+        
+        if (typeof getDay1Scenes === 'function') {
+            allScenes = allScenes.concat(getDay1Scenes());
+        }
+        
+        // Добавим другие дни когда создадим
+        // if (typeof getDay2Scenes === 'function') {
+        //     allScenes = allScenes.concat(getDay2Scenes());
+        // }
+        
+        return allScenes;
+    }
+    
+    getOldStoryScenes() {
+        // Старая короткая версия (не используется)
         return [
             // Сцена 0: Первый контакт
             {

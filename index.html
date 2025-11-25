@@ -8,8 +8,6 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="crt-overlay"></div>
-    
     <div class="terminal-container">
         <!-- Заголовок терминала -->
         <div class="terminal-header">
@@ -27,7 +25,10 @@
         <div class="main-screen">
             <!-- Портрет персонажа -->
             <div class="character-panel">
-                <canvas id="characterCanvas" width="128" height="128"></canvas>
+                <div class="character-avatar-container">
+                    <img id="characterImage" src="anya.png" alt="АНЯ" class="character-avatar">
+                    <div class="signal-noise" id="signalNoise"></div>
+                </div>
                 <div class="character-name" id="characterName">АНЯ</div>
                 <div class="status-bars">
                     <div class="status-bar">
@@ -36,20 +37,6 @@
                             <div class="bar-fill stability" id="stabilityBar"></div>
                         </div>
                         <span class="status-value" id="stabilityValue">100%</span>
-                    </div>
-                    <div class="status-bar">
-                        <span class="status-label">ДОВЕРИЕ</span>
-                        <div class="bar-container">
-                            <div class="bar-fill trust" id="trustBar"></div>
-                        </div>
-                        <span class="status-value" id="trustValue">50%</span>
-                    </div>
-                    <div class="status-bar">
-                        <span class="status-label">ЧЕЛОВЕЧНОСТЬ</span>
-                        <div class="bar-container">
-                            <div class="bar-fill humanity" id="humanityBar"></div>
-                        </div>
-                        <span class="status-value" id="humanityValue">75%</span>
                     </div>
                 </div>
             </div>
@@ -111,6 +98,8 @@
         </div>
     </div>
 
+    <script src="minigame.js"></script>
+    <script src="day1.js"></script>
     <script src="game.js"></script>
 </body>
 </html>
