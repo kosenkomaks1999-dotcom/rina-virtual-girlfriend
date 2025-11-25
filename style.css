@@ -480,23 +480,25 @@ button, .choice-button, .character-panel, .terminal-header, .terminal-footer {
 }
 
 .minigame-header h2 {
-    font-size: 1.5em;
+    font-size: 1.2em;
     margin-bottom: 10px;
     color: #00ff00;
     text-shadow: 0 0 10px #00ff00;
 }
 
 .minigame-header p {
-    font-size: 1.2em;
+    font-size: 1em;
     color: #00ff00;
 }
 
 #dataCanvas, #neuronCanvas {
-    border: 3px solid #00ff00;
+    border: 2px solid #00ff00;
     box-shadow: 0 0 30px rgba(0, 255, 0, 0.5);
     cursor: crosshair;
     image-rendering: crisp-edges;
     background: #000;
+    max-width: 95vw;
+    height: auto;
 }
 
 .minigame-stats {
@@ -524,9 +526,10 @@ button, .choice-button, .character-panel, .terminal-header, .terminal-footer {
 
 .minigame-hint {
     display: flex;
-    gap: 30px;
+    gap: 15px;
     justify-content: center;
-    font-size: 1em;
+    font-size: 0.9em;
+    flex-wrap: wrap;
 }
 
 .error-hint {
