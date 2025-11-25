@@ -325,6 +325,34 @@ body {
     cursor: not-allowed;
 }
 
+.choice-button.minigame-button {
+    border-color: #ffff00;
+    color: #ffff00;
+    font-size: 1.2em;
+    font-weight: bold;
+    text-align: center;
+    animation: pulse 2s infinite;
+}
+
+.choice-button.minigame-button:hover {
+    background: rgba(255, 255, 0, 0.2);
+    border-color: #ffff00;
+    padding-left: 12px;
+}
+
+.choice-button.minigame-button:hover::before {
+    content: '';
+}
+
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 0 5px #ffff00;
+    }
+    50% {
+        box-shadow: 0 0 20px #ffff00, 0 0 30px #ffff00;
+    }
+}
+
 /* Индикатор печати */
 .typing-indicator {
     position: absolute;

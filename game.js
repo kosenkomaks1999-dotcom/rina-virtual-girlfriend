@@ -129,8 +129,8 @@ class EchoGame {
         // Проверяем мини-игру
         if (scene.minigame) {
             this.showMessages(scene.messages, 0, () => {
-                // Запускаем мини-игру
-                this.startMinigame(scene.minigame, scene.onSuccess);
+                // Показываем кнопку запуска мини-игры
+                this.showMinigameButton(scene.minigame, scene.onSuccess);
             });
             return;
         }
@@ -149,6 +149,33 @@ class EchoGame {
                 }
             });
         }
+    }
+    
+    showMinigameButton(type, nextSceneId) {
+        const container = document.getElementById('choicesContainer');
+        const messagesContainer = document.getElementById('chatMessages');
+        container.innerHTML = '';
+        container.classList.add('active');
+        
+        const button = document.createElement('button');
+        button.className = 'choice-button minigame-button';
+        button.innerHTML = '⚡ ВОССТАНОВИТЬ СТАБИЛЬНОСТЬ';
+        button.addEventListener('click', () => {
+            // Скрываем кнопку
+            container.classList.remove('active');
+            messagesContainer.style.paddingBottom = '10px';
+            
+            // Запускаем мини-игру
+            this.startMinigame(type, nextSceneId);
+        });
+        container.appendChild(button);
+        
+        // Добавляем отступ снизу
+        setTimeout(() => {
+            const containerHeight = container.offsetHeight;
+            messagesContainer.style.paddingBottom = containerHeight + 'px';
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }, 100);
     }
     
     startMinigame(type, nextSceneId) {
