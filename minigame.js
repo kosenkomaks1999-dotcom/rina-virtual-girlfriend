@@ -37,7 +37,7 @@ class DataCleanupGame {
                         </div>
                     </div>
                 </div>
-                <canvas id="dataCanvas" width="400" height="300"></canvas>
+                <canvas id="dataCanvas" width="320" height="240"></canvas>
                 <div class="minigame-hint">
                     <span class="error-hint">🔴 Кликай по КРАСНЫМ (ошибки)</span>
                     <span class="safe-hint">🟢 НЕ трогай ЗЕЛЁНЫЕ (данные)</span>

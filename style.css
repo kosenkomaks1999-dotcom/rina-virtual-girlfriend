@@ -472,7 +472,9 @@ button, .choice-button, .character-panel, .terminal-header, .terminal-footer {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 20px;
+    gap: 10px;
+    padding: 10px;
+    max-width: 100%;
 }
 
 .minigame-header {
@@ -493,11 +495,12 @@ button, .choice-button, .character-panel, .terminal-header, .terminal-footer {
 
 #dataCanvas, #neuronCanvas {
     border: 2px solid #00ff00;
-    box-shadow: 0 0 30px rgba(0, 255, 0, 0.5);
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
     cursor: crosshair;
     image-rendering: crisp-edges;
     background: #000;
-    max-width: 95vw;
+    width: 100%;
+    max-width: 320px;
     height: auto;
 }
 
