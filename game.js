@@ -250,21 +250,29 @@ class EchoGame {
         // Сохраняем выбор
         this.choices.push(index);
         
-        // Переходим к следующей сцене
-        this.currentScene++;
-        
         // Сохраняем прогресс
         this.saveGame();
         
+        // Определяем следующую сцену
+        let nextSceneId;
         if (choice.nextScene !== undefined) {
-            setTimeout(() => {
-                this.showScene(this.getScene(choice.nextScene));
-            }, 1000);
+            nextSceneId = choice.nextScene;
+            this.currentScene = nextSceneId;
         } else {
-            setTimeout(() => {
-                this.showScene(this.getScene(this.currentScene));
-            }, 1000);
+            this.currentScene++;
+            nextSceneId = this.currentScene;
         }
+        
+        // Переходим к следующей сцене
+        setTimeout(() => {
+            const nextScene = this.getScene(nextSceneId);
+            if (nextScene) {
+                this.showScene(nextScene);
+            } else {
+                // Если сцены нет, показываем сообщение об окончании
+                this.addMessage('СИСТЕМА: Сеанс завершён.', 'system');
+            }
+        }, 1000);
     }
     
     applyEffects(effects) {
