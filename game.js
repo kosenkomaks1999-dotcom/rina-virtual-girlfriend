@@ -212,6 +212,8 @@ class EchoGame {
     
     showChoices(choices) {
         const container = document.getElementById('choicesContainer');
+        const messagesContainer = document.getElementById('chatMessages');
+        
         container.innerHTML = '';
         container.classList.add('active');
         
@@ -223,9 +225,10 @@ class EchoGame {
             container.appendChild(button);
         });
         
-        // Прокручиваем к выборам
+        // Добавляем отступ снизу равный высоте блока выборов
         setTimeout(() => {
-            const messagesContainer = document.getElementById('chatMessages');
+            const containerHeight = container.offsetHeight;
+            messagesContainer.style.paddingBottom = containerHeight + 'px';
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }, 100);
     }
@@ -240,8 +243,9 @@ class EchoGame {
             }
         }
         
-        // Скрываем выборы
+        // Скрываем выборы и убираем отступ
         document.getElementById('choicesContainer').classList.remove('active');
+        document.getElementById('chatMessages').style.paddingBottom = '10px';
         
         // Добавляем выбор игрока в чат
         this.addMessage(choice.text, 'player');
