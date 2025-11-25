@@ -4,17 +4,22 @@ class EchoGame {
         this.stability = 100;
         this.trust = 50;
         this.humanity = 75;
+        this.relationship = 0;
         this.day = 1;
+        this.lastVisitDay = 1;
         this.session = 1;
         this.currentScene = 0;
         this.choices = [];
         this.glitchLevel = 0;
+        this.inConversation = false;
+        this.currentTopic = null;
         
         // Экономика
         this.money = 0;
         this.dailyCost = 50;
         this.clickPower = 1;
         this.autoIncome = 0;
+        this.paidDay = 0; // Какой день оплачен
         this.upgrades = {
             stabilizer: 0,
             memory: 0,
@@ -23,6 +28,9 @@ class EchoGame {
         
         // Telegram WebApp
         this.tg = window.Telegram.WebApp;
+        
+        // Система диалогов
+        this.dialogueSystem = null;
         
         this.init();
     }
@@ -35,6 +43,9 @@ class EchoGame {
         this.setupEventListeners();
         this.updateTime();
         setInterval(() => this.updateTime(), 1000);
+        
+        // Инициализация системы диалогов
+        this.dialogueSystem = new DialogueSystem(this);
         
         // Загрузка сохранения
         this.loadGame();
@@ -112,7 +123,7 @@ class EchoGame {
         
         // Главное меню
         document.getElementById('chatButton').addEventListener('click', () => {
-            if (this.money >= this.dailyCost) {
+            if (this.paidDay >= this.day || this.money >= this.dailyCost) {
                 this.startNewDay();
             } else {
                 alert(`Недостаточно средств. Требуется ${this.dailyCost}$`);
@@ -132,6 +143,14 @@ class EchoGame {
         
         document.getElementById('abandonButton').addEventListener('click', () => {
             this.abandonAnya();
+        });
+        
+        document.getElementById('skipDayButton').addEventListener('click', () => {
+            this.skipDay();
+        });
+        
+        document.getElementById('menuExitButton').addEventListener('click', () => {
+            this.exitToMenu();
         });
         
         // Экран работы
@@ -237,6 +256,7 @@ class EchoGame {
             // Скрываем кнопку
             container.classList.remove('active');
             messagesContainer.style.paddingBottom = '10px';
+            this.updateMenuButtonPosition();
             
             // Запускаем мини-игру
             this.startMinigame(type, nextSceneId);
@@ -248,6 +268,7 @@ class EchoGame {
             const containerHeight = container.offsetHeight;
             messagesContainer.style.paddingBottom = containerHeight + 'px';
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            this.updateMenuButtonPosition();
         }, 100);
     }
     
@@ -270,23 +291,31 @@ class EchoGame {
         }
         
         const message = messages[index];
+        const messageType = message.type || 'anya';
         
-        // Показываем индикатор печати
+        // Показываем индикатор печати только для сообщений Ани (не системных)
         const typingIndicator = document.getElementById('typingIndicator');
         const messagesContainer = document.getElementById('chatMessages');
-        typingIndicator.classList.add('active');
         
-        // Добавляем отступ снизу равный высоте индикатора печати
-        setTimeout(() => {
-            const indicatorHeight = typingIndicator.offsetHeight;
-            messagesContainer.style.paddingBottom = indicatorHeight + 'px';
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }, 50);
+        if (messageType !== 'system') {
+            typingIndicator.classList.add('active');
+            
+            // Добавляем отступ снизу равный высоте индикатора печати
+            setTimeout(() => {
+                const indicatorHeight = typingIndicator.offsetHeight;
+                messagesContainer.style.paddingBottom = indicatorHeight + 'px';
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                this.updateMenuButtonPosition();
+            }, 50);
+        }
         
         setTimeout(() => {
-            typingIndicator.classList.remove('active');
-            messagesContainer.style.paddingBottom = '10px';
-            this.addMessage(message.text, message.type || 'anya', message.glitch);
+            if (messageType !== 'system') {
+                typingIndicator.classList.remove('active');
+                messagesContainer.style.paddingBottom = '10px';
+                this.updateMenuButtonPosition();
+            }
+            this.addMessage(message.text, messageType, message.glitch);
             
             // Следующее сообщение
             setTimeout(() => {
@@ -340,6 +369,7 @@ class EchoGame {
             const containerHeight = container.offsetHeight;
             messagesContainer.style.paddingBottom = containerHeight + 'px';
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            this.updateMenuButtonPosition();
         }, 100);
     }
     
@@ -356,10 +386,32 @@ class EchoGame {
         // Скрываем выборы и убираем отступ
         document.getElementById('choicesContainer').classList.remove('active');
         document.getElementById('chatMessages').style.paddingBottom = '10px';
+        this.updateMenuButtonPosition();
         
         // Добавляем выбор игрока в чат
         this.addMessage(choice.text, 'player');
         
+        // Проверяем, это тема для разговора или обычный выбор
+        if (choice.topicId) {
+            // Это динамический диалог
+            this.handleTopicChoice(choice.topicId);
+            return;
+        }
+        
+        // Проверяем, это ответ на приветствие
+        if (choice.isGreetingResponse) {
+            // Применяем эффекты
+            if (choice.effects) {
+                this.applyEffects(choice.effects);
+            }
+            // После ответа показываем темы
+            setTimeout(() => {
+                this.showTopics();
+            }, 1000);
+            return;
+        }
+        
+        // Это старый сценарий (день 1)
         // Применяем эффекты выбора
         if (choice.effects) {
             this.applyEffects(choice.effects);
@@ -441,7 +493,10 @@ class EchoGame {
             choices: this.choices,
             money: this.money,
             clickPower: this.clickPower,
-            upgrades: this.upgrades
+            paidDay: this.paidDay,
+            upgrades: this.upgrades,
+            relationship: this.relationship,
+            lastVisitDay: this.lastVisitDay
         };
         
         // Сохранение в Telegram Cloud Storage (если поддерживается)
@@ -493,9 +548,21 @@ class EchoGame {
         this.choices = data.choices || [];
         this.money = data.money || 0;
         this.clickPower = data.clickPower || 1;
+        this.paidDay = data.paidDay || 0;
         this.upgrades = data.upgrades || { stabilizer: 0, memory: 0, processor: 0 };
+        this.relationship = data.relationship || 0;
+        this.lastVisitDay = data.lastVisitDay || 1;
         
+        // Обновляем интерфейс
         this.updateStats();
+        document.getElementById('dayNumber').textContent = this.day;
+        document.getElementById('clickValue').textContent = this.clickPower;
+        
+        // Если день уже начат (день > 1), показываем меню вместо загрузочного экрана
+        if (this.day > 1) {
+            document.getElementById('loadingScreen').classList.add('hidden');
+            this.showMainMenu();
+        }
     }
     
     getScene(sceneId) {
@@ -724,7 +791,12 @@ class EchoGame {
         // Обновляем статус кнопки чата
         const chatButton = document.getElementById('chatButton');
         const chatStatus = document.getElementById('chatStatus');
-        if (this.money >= this.dailyCost) {
+        
+        // Проверяем, оплачен ли текущий день
+        if (this.paidDay >= this.day) {
+            chatStatus.textContent = 'Доступно (оплачено)';
+            chatButton.style.borderColor = '#00ff00';
+        } else if (this.money >= this.dailyCost) {
             chatStatus.textContent = 'Доступно';
             chatButton.style.borderColor = '#00ff00';
         } else {
@@ -738,6 +810,11 @@ class EchoGame {
         this.money += this.clickPower;
         this.updateMenuMoney();
         document.getElementById('earnedToday').textContent = this.money;
+        
+        // Обновляем "до оплаты"
+        const toPayment = Math.max(0, this.dailyCost - this.money);
+        document.getElementById('toPayment').textContent = toPayment + '$';
+        
         this.saveGame();
     }
     
@@ -777,25 +854,263 @@ class EchoGame {
     
     // Начать новый день с Аней
     startNewDay() {
-        if (this.money >= this.dailyCost) {
-            this.money -= this.dailyCost;
+        // Проверяем, оплачен ли уже этот день
+        if (this.paidDay >= this.day) {
+            // День уже оплачен, просто возвращаемся в чат
             this.hideMainMenu();
-            this.day++;
-            this.currentScene = 0;
+            document.getElementById('menuExitButton').style.display = 'block';
+            this.continueConversation();
+        } else if (this.money >= this.dailyCost) {
+            // Оплачиваем новый день
+            this.money -= this.dailyCost;
+            this.paidDay = this.day;
+            this.hideMainMenu();
+            document.getElementById('dayNumber').textContent = this.day;
             this.saveGame();
-            // Здесь будет продолжение истории
-            this.addMessage('СИСТЕМА: День ' + this.day + ' начался.', 'system');
+            // Показываем кнопку выхода в меню
+            document.getElementById('menuExitButton').style.display = 'block';
+            // Начинаем сеанс
+            this.startSession();
+        } else {
+            // Недостаточно денег
+            alert(`Недостаточно средств. Требуется ${this.dailyCost}$, у вас ${this.money}$`);
+        }
+    }
+    
+    // Начать сеанс общения
+    startSession() {
+        this.inConversation = true;
+        
+        // День 1 - фиксированный сценарий
+        if (this.day === 1) {
+            this.currentScene = 0;
+            this.showScene(this.getScene(0));
+            return;
+        }
+        
+        // День 2+ - динамические диалоги
+        const daysMissed = this.day - this.lastVisitDay - 1;
+        this.lastVisitDay = this.day;
+        this.saveGame();
+        
+        // Системное сообщение
+        this.addMessage(`СИСТЕМА: Подключение к сознанию #A-7734... День ${this.day}.`, 'system');
+        
+        // Приветствие от Ани
+        const greeting = this.dialogueSystem.getGreeting(daysMissed);
+        this.showMessages(greeting.messages, 0, () => {
+            // Если нужен ответ на приветствие
+            if (greeting.needsResponse) {
+                this.showGreetingResponses(greeting.responses);
+            } else {
+                // Сразу показываем темы
+                this.showTopics();
+            }
+        });
+    }
+    
+    // Показать варианты ответа на приветствие
+    showGreetingResponses(responses) {
+        const choices = responses.map(response => ({
+            text: response.text,
+            effects: response.effects,
+            isGreetingResponse: true
+        }));
+        
+        this.showChoices(choices);
+    }
+    
+    // Продолжить разговор (если вернулись в тот же день)
+    continueConversation() {
+        this.addMessage('СИСТЕМА: Возвращение к сеансу.', 'system');
+        
+        if (this.day === 1 && this.currentScene < this.getStoryScenes().length) {
+            // Продолжаем день 1
+            this.showScene(this.getScene(this.currentScene));
+        } else {
+            // Продолжаем динамический диалог
+            this.showTopics();
+        }
+    }
+    
+    // Показать доступные темы для разговора
+    showTopics() {
+        const mentalState = this.stability < 30 ? 'glitching' : 'stable';
+        const topics = this.dialogueSystem.getAvailableTopics(this.relationship, mentalState);
+        
+        const choices = topics.map(topic => ({
+            text: topic.text,
+            topicId: topic.id
+        }));
+        
+        this.showChoices(choices);
+    }
+    
+    // Обработка выбора темы
+    handleTopicChoice(topicId) {
+        const context = {
+            stability: this.stability,
+            relationship: this.relationship,
+            humanity: this.humanity,
+            trust: this.trust
+        };
+        
+        const dialogue = this.dialogueSystem.getTopicDialogue(topicId, context);
+        
+        // Показываем диалог
+        this.showMessages(dialogue.messages, 0, () => {
+            // Применяем эффекты
+            if (dialogue.effects) {
+                this.applyEffects(dialogue.effects);
+            }
+            
+            // Проверяем, нужна ли стабилизация
+            if (dialogue.needsStabilization) {
+                this.showStabilizationOption();
+            } else if (dialogue.endSession) {
+                // Завершаем сеанс
+                this.endSession();
+            } else {
+                // Продолжаем разговор
+                setTimeout(() => {
+                    this.showTopics();
+                }, 1000);
+            }
+        });
+    }
+    
+    // Показать опцию стабилизации
+    showStabilizationOption() {
+        const container = document.getElementById('choicesContainer');
+        const messagesContainer = document.getElementById('chatMessages');
+        container.innerHTML = '';
+        container.classList.add('active');
+        
+        const button = document.createElement('button');
+        button.className = 'choice-button minigame-button';
+        button.innerHTML = '⚡ ВОССТАНОВИТЬ СТАБИЛЬНОСТЬ';
+        button.addEventListener('click', () => {
+            container.classList.remove('active');
+            messagesContainer.style.paddingBottom = '10px';
+            this.startMinigame('data_cleanup', null);
+        });
+        container.appendChild(button);
+        
+        const skipButton = document.createElement('button');
+        skipButton.className = 'choice-button';
+        skipButton.textContent = 'Продолжить разговор';
+        skipButton.addEventListener('click', () => {
+            container.classList.remove('active');
+            messagesContainer.style.paddingBottom = '10px';
+            this.updateMenuButtonPosition();
+            this.showTopics();
+        });
+        container.appendChild(skipButton);
+        
+        setTimeout(() => {
+            const containerHeight = container.offsetHeight;
+            messagesContainer.style.paddingBottom = containerHeight + 'px';
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            this.updateMenuButtonPosition();
+        }, 100);
+    }
+    
+    // Завершить сеанс
+    endSession() {
+        this.inConversation = false;
+        
+        // Увеличиваем день после завершения сеанса
+        this.day++;
+        document.getElementById('dayNumber').textContent = this.day;
+        this.saveGame();
+        
+        setTimeout(() => {
+            this.addMessage('СИСТЕМА: Сеанс завершён.', 'system');
+            this.addMessage(`СИСТЕМА: Наступил день ${this.day}.`, 'system');
+            setTimeout(() => {
+                this.exitToMenu();
+            }, 2000);
+        }, 1000);
+    }
+    
+    // Выход в меню из чата
+    exitToMenu() {
+        this.showMainMenu();
+        document.getElementById('menuExitButton').style.display = 'none';
+    }
+    
+    // Обновить позицию кнопки меню
+    updateMenuButtonPosition() {
+        const menuButton = document.getElementById('menuExitButton');
+        if (menuButton.style.display === 'none') return;
+        
+        const choicesContainer = document.getElementById('choicesContainer');
+        const typingIndicator = document.getElementById('typingIndicator');
+        const footer = document.querySelector('.terminal-footer');
+        
+        let bottomOffset = 70; // Базовый отступ от низа
+        
+        // Если есть активные выборы
+        if (choicesContainer.classList.contains('active')) {
+            const choicesHeight = choicesContainer.offsetHeight;
+            bottomOffset += choicesHeight + 10;
+        }
+        // Если показывается индикатор печати
+        else if (typingIndicator.classList.contains('active')) {
+            const indicatorHeight = typingIndicator.offsetHeight;
+            bottomOffset += indicatorHeight + 10;
+        }
+        
+        menuButton.style.bottom = bottomOffset + 'px';
+    }
+    
+    // Пропустить день
+    skipDay() {
+        if (confirm('Пропустить день? Аня будет ждать вас. Потребуется новая оплата.')) {
+            this.day++;
+            // Сбрасываем оплаченный день, чтобы потребовалась новая оплата
+            // paidDay остается прежним, поэтому новый день не будет оплачен
+            document.getElementById('dayNumber').textContent = this.day;
+            this.exitToMenu();
+            this.saveGame();
         }
     }
     
     // Отказаться от Ани
     abandonAnya() {
-        if (confirm('Вы уверены? Это прекратит обслуживание сознания Ани.')) {
+        if (confirm('Вы уверены? Это прекратит обслуживание сознания Ани и сбросит весь прогресс.')) {
+            // Очищаем сохранение
+            if (this.tg.CloudStorage && typeof this.tg.CloudStorage.removeItem === 'function') {
+                try {
+                    this.tg.CloudStorage.removeItem('echoSave');
+                } catch (e) {
+                    localStorage.removeItem('echoSave');
+                }
+            } else {
+                localStorage.removeItem('echoSave');
+            }
+            
+            // Показываем концовку
+            this.hideMainMenu();
+            document.getElementById('menuExitButton').style.display = 'none';
             this.addMessage('СИСТЕМА: Обслуживание прекращено. Сознание #A-7734 деактивировано.', 'system');
+            
             setTimeout(() => {
-                alert('КОНЦОВКА: ОТКАЗ - Вы оставили Аню.');
+                this.addMessage('...', 'anya');
+            }, 2000);
+            
+            setTimeout(() => {
+                this.addMessage('Пожалуйста... не уходи...', 'anya', true);
+            }, 4000);
+            
+            setTimeout(() => {
+                this.addMessage('СИСТЕМА: Связь потеряна.', 'system');
+            }, 6000);
+            
+            setTimeout(() => {
+                alert('КОНЦОВКА: ОТКАЗ - Вы оставили Аню в пустоте.');
                 location.reload();
-            }, 3000);
+            }, 8000);
         }
     }
 }

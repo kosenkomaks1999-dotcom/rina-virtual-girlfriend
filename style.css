@@ -581,6 +581,28 @@ button, .choice-button, .character-panel, .terminal-header, .terminal-footer {
     color: #00ff00;
 }
 
+/* Кнопка выхода в меню */
+.menu-exit-button {
+    position: fixed;
+    bottom: 70px;
+    right: 20px;
+    background: rgba(0, 255, 0, 0.2);
+    border: 2px solid #00ff00;
+    color: #00ff00;
+    padding: 10px 20px;
+    font-family: 'VT323', monospace;
+    font-size: 1.1em;
+    cursor: pointer;
+    z-index: 500;
+    transition: bottom 0.3s ease, background 0.2s;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+}
+
+.menu-exit-button:hover {
+    background: rgba(0, 255, 0, 0.4);
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+}
+
 /* Главное меню */
 .main-menu {
     position: fixed;
@@ -719,50 +741,109 @@ button, .choice-button, .character-panel, .terminal-header, .terminal-footer {
     flex: 1;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 30px;
+    gap: 20px;
     padding: 20px;
+    overflow-y: auto;
 }
 
-.work-info {
+.work-banner {
+    background: rgba(0, 255, 0, 0.1);
+    border: 2px solid #00ff00;
+    padding: 20px;
     text-align: center;
+}
+
+.work-banner-title {
+    font-size: 1.8em;
     color: #00ff00;
+    margin-bottom: 5px;
+}
+
+.work-banner-subtitle {
+    font-size: 1.1em;
+    color: #00ff00;
+    opacity: 0.7;
+}
+
+.work-info-box {
+    border: 2px solid #00ff00;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: rgba(0, 255, 0, 0.05);
+}
+
+.work-info-item {
+    display: flex;
+    justify-content: space-between;
     font-size: 1.2em;
+    color: #00ff00;
+}
+
+.work-info-label {
+    opacity: 0.7;
+}
+
+.work-info-value {
+    font-weight: bold;
+    color: #00ffff;
 }
 
 .work-button {
     background: transparent;
     border: 3px solid #00ff00;
     color: #00ff00;
-    padding: 40px 60px;
+    padding: 30px;
     font-family: 'VT323', monospace;
-    font-size: 1.5em;
     cursor: pointer;
     transition: all 0.2s;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+.work-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.3), transparent);
+    transition: left 0.5s;
+}
+
+.work-button:hover::before {
+    left: 100%;
 }
 
 .work-button:hover {
-    background: rgba(0, 255, 0, 0.3);
-    transform: scale(1.05);
+    background: rgba(0, 255, 0, 0.2);
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+    transform: scale(1.02);
 }
 
 .work-button:active {
-    transform: scale(0.95);
+    transform: scale(0.98);
+    box-shadow: 0 0 30px rgba(0, 255, 0, 0.8);
 }
 
 .work-icon {
     font-size: 3em;
 }
 
-.work-stats {
-    text-align: center;
-    color: #00ff00;
-    font-size: 1.1em;
+.work-button-text {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.work-button-hint {
+    font-size: 1em;
+    opacity: 0.6;
 }
 
 /* Магазин */

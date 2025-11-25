@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Эхо в Сети - Echo in the Net</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link rel="stylesheet" href="style.css?v=3">
+    <link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
     <div class="terminal-container">
@@ -76,7 +76,13 @@
             </div>
             <div class="warning-message" id="warningMessage"></div>
         </div>
+        
     </div>
+    
+    <!-- Кнопка выхода в меню (вне terminal-container) -->
+    <button class="menu-exit-button" id="menuExitButton" style="display: none;">
+        ☰ МЕНЮ
+    </button>
 
     <!-- Главное меню -->
     <div class="main-menu" id="mainMenu" style="display: none;">
@@ -108,6 +114,12 @@
                 <span class="menu-status">Улучшения</span>
             </button>
             
+            <button class="menu-button" id="skipDayButton">
+                <span class="menu-icon">⏭</span>
+                <span class="menu-text">ПРОПУСТИТЬ ДЕНЬ</span>
+                <span class="menu-status">Перейти к следующему дню</span>
+            </button>
+            
             <button class="menu-button danger" id="abandonButton">
                 <span class="menu-icon">⚠</span>
                 <span class="menu-text">ОТКАЗАТЬСЯ ОТ АНИ</span>
@@ -125,19 +137,31 @@
         </div>
         
         <div class="work-content">
-            <div class="work-info">
-                <p>Выполняйте задачи для заработка</p>
-                <p>Клик: +<span id="clickValue">1</span>$</p>
+            <div class="work-banner">
+                <div class="work-banner-title">FREELANCE TERMINAL v3.2</div>
+                <div class="work-banner-subtitle">Выполняйте задачи и зарабатывайте кредиты</div>
+            </div>
+            
+            <div class="work-info-box">
+                <div class="work-info-item">
+                    <span class="work-info-label">Доход за клик:</span>
+                    <span class="work-info-value">+<span id="clickValue">1</span>$</span>
+                </div>
+                <div class="work-info-item">
+                    <span class="work-info-label">Заработано сегодня:</span>
+                    <span class="work-info-value"><span id="earnedToday">0</span>$</span>
+                </div>
+                <div class="work-info-item">
+                    <span class="work-info-label">До оплаты:</span>
+                    <span class="work-info-value" id="toPayment">50$</span>
+                </div>
             </div>
             
             <button class="work-button" id="clickButton">
                 <span class="work-icon">💻</span>
-                <span>ВЫПОЛНИТЬ ЗАДАЧУ</span>
+                <span class="work-button-text">ВЫПОЛНИТЬ ЗАДАЧУ</span>
+                <span class="work-button-hint">Нажмите для заработка</span>
             </button>
-            
-            <div class="work-stats">
-                <div>Заработано сегодня: <span id="earnedToday">0</span>$</div>
-            </div>
         </div>
     </div>
 
@@ -205,9 +229,10 @@
         </div>
     </div>
 
-    <script src="minigame.js?v=3"></script>
-    <script src="day1.js?v=3"></script>
-    <script src="day2.js?v=3"></script>
-    <script src="game.js?v=3"></script>
+    <script src="minigame.js?v=5"></script>
+    <script src="day1.js?v=5"></script>
+    <script src="day2.js?v=5"></script>
+    <script src="dialogues.js?v=5"></script>
+    <script src="game.js?v=5"></script>
 </body>
 </html>
