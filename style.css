@@ -280,11 +280,11 @@ body {
     bottom: 0;
     left: 0;
     right: 0;
-    padding: 10px;
+    padding: 8px;
     border-top: 2px solid #00ff00;
     background: #000;
     display: none;
-    max-height: 40vh;
+    max-height: 35vh;
     overflow-y: auto;
     z-index: 10;
 }
@@ -295,17 +295,18 @@ body {
 
 .choice-button {
     width: 100%;
-    padding: 10px 15px;
-    margin-bottom: 8px;
+    padding: 8px 12px;
+    margin-bottom: 5px;
     background: transparent;
     border: 2px solid #00ff00;
     color: #00ff00;
     font-family: 'VT323', monospace;
-    font-size: 1.1em;
+    font-size: 1em;
     cursor: pointer;
     text-align: left;
     transition: all 0.2s;
     position: relative;
+    line-height: 1.2;
 }
 
 .choice-button:hover {
