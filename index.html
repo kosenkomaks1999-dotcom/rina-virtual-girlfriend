@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Эхо в Сети - Echo in the Net</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
     <div class="terminal-container">
@@ -78,6 +78,113 @@
         </div>
     </div>
 
+    <!-- Главное меню -->
+    <div class="main-menu" id="mainMenu" style="display: none;">
+        <div class="menu-header">
+            <div class="menu-title">ГЛАВНОЕ МЕНЮ</div>
+            <div class="menu-balance">
+                <span>Баланс: <span id="menuMoney">0</span>$</span>
+                <span class="separator">|</span>
+                <span>Требуется: <span id="menuCost">50</span>$/день</span>
+            </div>
+        </div>
+        
+        <div class="menu-buttons">
+            <button class="menu-button" id="chatButton">
+                <span class="menu-icon">💬</span>
+                <span class="menu-text">ЧАТ С АНЕЙ</span>
+                <span class="menu-status" id="chatStatus">Требуется оплата</span>
+            </button>
+            
+            <button class="menu-button" id="workButton">
+                <span class="menu-icon">💰</span>
+                <span class="menu-text">ЗАРАБОТОК</span>
+                <span class="menu-status">Кликер</span>
+            </button>
+            
+            <button class="menu-button" id="shopButton">
+                <span class="menu-icon">🛠</span>
+                <span class="menu-text">МАГАЗИН</span>
+                <span class="menu-status">Улучшения</span>
+            </button>
+            
+            <button class="menu-button danger" id="abandonButton">
+                <span class="menu-icon">⚠</span>
+                <span class="menu-text">ОТКАЗАТЬСЯ ОТ АНИ</span>
+                <span class="menu-status">Прекратить обслуживание</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Экран работы (кликер) -->
+    <div class="work-screen" id="workScreen" style="display: none;">
+        <div class="work-header">
+            <button class="back-button" id="workBackButton">← НАЗАД</button>
+            <div class="work-title">УДАЛЁННАЯ РАБОТА</div>
+            <div class="work-balance">Баланс: <span id="workMoney">0</span>$</div>
+        </div>
+        
+        <div class="work-content">
+            <div class="work-info">
+                <p>Выполняйте задачи для заработка</p>
+                <p>Клик: +<span id="clickValue">1</span>$</p>
+            </div>
+            
+            <button class="work-button" id="clickButton">
+                <span class="work-icon">💻</span>
+                <span>ВЫПОЛНИТЬ ЗАДАЧУ</span>
+            </button>
+            
+            <div class="work-stats">
+                <div>Заработано сегодня: <span id="earnedToday">0</span>$</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Экран магазина -->
+    <div class="shop-screen" id="shopScreen" style="display: none;">
+        <div class="shop-header">
+            <button class="back-button" id="shopBackButton">← НАЗАД</button>
+            <div class="shop-title">МАГАЗИН УЛУЧШЕНИЙ</div>
+            <div class="shop-balance">Баланс: <span id="shopMoney">0</span>$</div>
+        </div>
+        
+        <div class="shop-content">
+            <div class="shop-item">
+                <div class="shop-item-info">
+                    <div class="shop-item-name">🛡 СТАБИЛИЗАТОР</div>
+                    <div class="shop-item-desc">Снижает частоту сбоев Ани</div>
+                    <div class="shop-item-level">Уровень: <span id="stabilizerLevel">0</span></div>
+                </div>
+                <button class="shop-buy-button" id="buyStabilizer">
+                    Купить: <span id="stabilizerCost">100</span>$
+                </button>
+            </div>
+            
+            <div class="shop-item">
+                <div class="shop-item-info">
+                    <div class="shop-item-name">🧠 ПАМЯТЬ</div>
+                    <div class="shop-item-desc">Улучшает качество общения</div>
+                    <div class="shop-item-level">Уровень: <span id="memoryLevel">0</span></div>
+                </div>
+                <button class="shop-buy-button" id="buyMemory">
+                    Купить: <span id="memoryCost">150</span>$
+                </button>
+            </div>
+            
+            <div class="shop-item">
+                <div class="shop-item-info">
+                    <div class="shop-item-name">⚡ ПРОЦЕССОР</div>
+                    <div class="shop-item-desc">Увеличивает заработок за клик</div>
+                    <div class="shop-item-level">Уровень: <span id="processorLevel">0</span></div>
+                </div>
+                <button class="shop-buy-button" id="buyProcessor">
+                    Купить: <span id="processorCost">200</span>$
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Экран загрузки -->
     <div class="loading-screen" id="loadingScreen">
         <div class="loading-content">
@@ -98,8 +205,9 @@
         </div>
     </div>
 
-    <script src="minigame.js?v=2"></script>
-    <script src="day1.js?v=2"></script>
-    <script src="game.js?v=2"></script>
+    <script src="minigame.js?v=3"></script>
+    <script src="day1.js?v=3"></script>
+    <script src="day2.js?v=3"></script>
+    <script src="game.js?v=3"></script>
 </body>
 </html>

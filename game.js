@@ -10,6 +10,17 @@ class EchoGame {
         this.choices = [];
         this.glitchLevel = 0;
         
+        // Экономика
+        this.money = 0;
+        this.dailyCost = 50;
+        this.clickPower = 1;
+        this.autoIncome = 0;
+        this.upgrades = {
+            stabilizer: 0,
+            memory: 0,
+            processor: 0
+        };
+        
         // Telegram WebApp
         this.tg = window.Telegram.WebApp;
         
@@ -98,6 +109,58 @@ class EchoGame {
             document.getElementById('loadingScreen').classList.add('hidden');
             this.startGame();
         });
+        
+        // Главное меню
+        document.getElementById('chatButton').addEventListener('click', () => {
+            if (this.money >= this.dailyCost) {
+                this.startNewDay();
+            } else {
+                alert(`Недостаточно средств. Требуется ${this.dailyCost}$`);
+            }
+        });
+        
+        document.getElementById('workButton').addEventListener('click', () => {
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('workScreen').style.display = 'flex';
+        });
+        
+        document.getElementById('shopButton').addEventListener('click', () => {
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('shopScreen').style.display = 'flex';
+            this.updateShopUI();
+        });
+        
+        document.getElementById('abandonButton').addEventListener('click', () => {
+            this.abandonAnya();
+        });
+        
+        // Экран работы
+        document.getElementById('workBackButton').addEventListener('click', () => {
+            document.getElementById('workScreen').style.display = 'none';
+            document.getElementById('mainMenu').style.display = 'flex';
+        });
+        
+        document.getElementById('clickButton').addEventListener('click', () => {
+            this.earnMoney();
+        });
+        
+        // Экран магазина
+        document.getElementById('shopBackButton').addEventListener('click', () => {
+            document.getElementById('shopScreen').style.display = 'none';
+            document.getElementById('mainMenu').style.display = 'flex';
+        });
+        
+        document.getElementById('buyStabilizer').addEventListener('click', () => {
+            this.buyUpgrade('stabilizer');
+        });
+        
+        document.getElementById('buyMemory').addEventListener('click', () => {
+            this.buyUpgrade('memory');
+        });
+        
+        document.getElementById('buyProcessor').addEventListener('click', () => {
+            this.buyUpgrade('processor');
+        });
     }
     
     updateTime() {
@@ -124,6 +187,16 @@ class EchoGame {
             this.day = scene.day;
             document.getElementById('dayNumber').textContent = this.day;
             this.saveGame();
+        }
+        
+        // Проверяем специальное действие (например, показ меню)
+        if (scene.onComplete === 'showMainMenu') {
+            this.showMessages(scene.messages, 0, () => {
+                setTimeout(() => {
+                    this.showMainMenu();
+                }, 1000);
+            });
+            return;
         }
         
         // Проверяем мини-игру
@@ -365,7 +438,10 @@ class EchoGame {
             day: this.day,
             session: this.session,
             currentScene: this.currentScene,
-            choices: this.choices
+            choices: this.choices,
+            money: this.money,
+            clickPower: this.clickPower,
+            upgrades: this.upgrades
         };
         
         // Сохранение в Telegram Cloud Storage (если поддерживается)
@@ -415,6 +491,9 @@ class EchoGame {
         this.session = data.session || 1;
         this.currentScene = data.currentScene || 0;
         this.choices = data.choices || [];
+        this.money = data.money || 0;
+        this.clickPower = data.clickPower || 1;
+        this.upgrades = data.upgrades || { stabilizer: 0, memory: 0, processor: 0 };
         
         this.updateStats();
     }
@@ -432,10 +511,9 @@ class EchoGame {
             allScenes = allScenes.concat(getDay1Scenes());
         }
         
-        // Добавим другие дни когда создадим
-        // if (typeof getDay2Scenes === 'function') {
-        //     allScenes = allScenes.concat(getDay2Scenes());
-        // }
+        if (typeof getDay2Scenes === 'function') {
+            allScenes = allScenes.concat(getDay2Scenes());
+        }
         
         return allScenes;
     }
@@ -623,6 +701,102 @@ class EchoGame {
                 choices: []
             }
         ];
+    }
+    
+    // Показать главное меню
+    showMainMenu() {
+        document.getElementById('mainMenu').style.display = 'flex';
+        document.querySelector('.terminal-container').style.display = 'none';
+        this.updateMenuMoney();
+    }
+    
+    hideMainMenu() {
+        document.getElementById('mainMenu').style.display = 'none';
+        document.querySelector('.terminal-container').style.display = 'flex';
+    }
+    
+    updateMenuMoney() {
+        document.getElementById('menuMoney').textContent = this.money;
+        document.getElementById('menuCost').textContent = this.dailyCost;
+        document.getElementById('workMoney').textContent = this.money;
+        document.getElementById('shopMoney').textContent = this.money;
+        
+        // Обновляем статус кнопки чата
+        const chatButton = document.getElementById('chatButton');
+        const chatStatus = document.getElementById('chatStatus');
+        if (this.money >= this.dailyCost) {
+            chatStatus.textContent = 'Доступно';
+            chatButton.style.borderColor = '#00ff00';
+        } else {
+            chatStatus.textContent = `Требуется ${this.dailyCost - this.money}$`;
+            chatButton.style.borderColor = '#ff0000';
+        }
+    }
+    
+    // Кликер
+    earnMoney() {
+        this.money += this.clickPower;
+        this.updateMenuMoney();
+        document.getElementById('earnedToday').textContent = this.money;
+        this.saveGame();
+    }
+    
+    // Покупка улучшений
+    buyUpgrade(type) {
+        const costs = {
+            stabilizer: 100 * (this.upgrades.stabilizer + 1),
+            memory: 150 * (this.upgrades.memory + 1),
+            processor: 200 * (this.upgrades.processor + 1)
+        };
+        
+        const cost = costs[type];
+        if (this.money >= cost) {
+            this.money -= cost;
+            this.upgrades[type]++;
+            
+            if (type === 'processor') {
+                this.clickPower = 1 + this.upgrades.processor;
+                document.getElementById('clickValue').textContent = this.clickPower;
+            }
+            
+            this.updateMenuMoney();
+            this.updateShopUI();
+            this.saveGame();
+        }
+    }
+    
+    updateShopUI() {
+        document.getElementById('stabilizerLevel').textContent = this.upgrades.stabilizer;
+        document.getElementById('memoryLevel').textContent = this.upgrades.memory;
+        document.getElementById('processorLevel').textContent = this.upgrades.processor;
+        
+        document.getElementById('stabilizerCost').textContent = 100 * (this.upgrades.stabilizer + 1);
+        document.getElementById('memoryCost').textContent = 150 * (this.upgrades.memory + 1);
+        document.getElementById('processorCost').textContent = 200 * (this.upgrades.processor + 1);
+    }
+    
+    // Начать новый день с Аней
+    startNewDay() {
+        if (this.money >= this.dailyCost) {
+            this.money -= this.dailyCost;
+            this.hideMainMenu();
+            this.day++;
+            this.currentScene = 0;
+            this.saveGame();
+            // Здесь будет продолжение истории
+            this.addMessage('СИСТЕМА: День ' + this.day + ' начался.', 'system');
+        }
+    }
+    
+    // Отказаться от Ани
+    abandonAnya() {
+        if (confirm('Вы уверены? Это прекратит обслуживание сознания Ани.')) {
+            this.addMessage('СИСТЕМА: Обслуживание прекращено. Сознание #A-7734 деактивировано.', 'system');
+            setTimeout(() => {
+                alert('КОНЦОВКА: ОТКАЗ - Вы оставили Аню.');
+                location.reload();
+            }, 3000);
+        }
     }
 }
 
