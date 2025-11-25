@@ -2,97 +2,115 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Рина - Виртуальная подруга</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Эхо в Сети - Echo in the Net</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <!-- Экран персонажа -->
-        <div class="character-screen">
-            <div class="glitch-overlay"></div>
-            <div class="character-container">
-                <canvas id="rinaCanvas" width="200" height="200"></canvas>
-                <div class="status-indicator" id="statusIndicator">💭</div>
+    <div class="crt-overlay"></div>
+    
+    <div class="terminal-container">
+        <!-- Заголовок терминала -->
+        <div class="terminal-header">
+            <div class="terminal-title">
+                <span class="blink">█</span> NEURALLINK CHAT SYSTEM v2.47.3
             </div>
-            <div class="time-display" id="timeDisplay"></div>
-        </div>
-
-        <!-- Диалоговое окно -->
-        <div class="dialogue-box" id="dialogueBox">
-            <div class="dialogue-text" id="dialogueText">
-                Привет... Ты меня слышишь?
+            <div class="terminal-status">
+                <span id="connectionStatus">CONNECTED</span>
+                <span class="separator">|</span>
+                <span id="systemTime">00:00:00</span>
             </div>
         </div>
 
-        <!-- Статистика -->
-        <div class="stats-panel">
-            <div class="stat-bar">
-                <span class="stat-icon">🍔</span>
-                <div class="stat-bar-bg">
-                    <div class="stat-bar-fill hunger" id="hungerBar"></div>
+        <!-- Основной экран -->
+        <div class="main-screen">
+            <!-- Портрет персонажа -->
+            <div class="character-panel">
+                <canvas id="characterCanvas" width="128" height="128"></canvas>
+                <div class="character-name" id="characterName">АНЯ</div>
+                <div class="status-bars">
+                    <div class="status-bar">
+                        <span class="status-label">СТАБИЛЬНОСТЬ</span>
+                        <div class="bar-container">
+                            <div class="bar-fill stability" id="stabilityBar"></div>
+                        </div>
+                        <span class="status-value" id="stabilityValue">100%</span>
+                    </div>
+                    <div class="status-bar">
+                        <span class="status-label">ДОВЕРИЕ</span>
+                        <div class="bar-container">
+                            <div class="bar-fill trust" id="trustBar"></div>
+                        </div>
+                        <span class="status-value" id="trustValue">50%</span>
+                    </div>
+                    <div class="status-bar">
+                        <span class="status-label">ЧЕЛОВЕЧНОСТЬ</span>
+                        <div class="bar-container">
+                            <div class="bar-fill humanity" id="humanityBar"></div>
+                        </div>
+                        <span class="status-value" id="humanityValue">75%</span>
+                    </div>
                 </div>
-                <span class="stat-value" id="hungerValue">100</span>
             </div>
-            <div class="stat-bar">
-                <span class="stat-icon">⚡</span>
-                <div class="stat-bar-bg">
-                    <div class="stat-bar-fill energy" id="energyBar"></div>
+
+            <!-- Чат -->
+            <div class="chat-panel">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="system-message">
+                        <span class="timestamp">[00:00:00]</span>
+                        <span class="text">СИСТЕМА: Подключение к сознанию #A-7734...</span>
+                    </div>
+                    <div class="system-message">
+                        <span class="timestamp">[00:00:03]</span>
+                        <span class="text">СИСТЕМА: Соединение установлено. Начало сеанса.</span>
+                    </div>
                 </div>
-                <span class="stat-value" id="energyValue">100</span>
-            </div>
-            <div class="stat-bar">
-                <span class="stat-icon">😊</span>
-                <div class="stat-bar-bg">
-                    <div class="stat-bar-fill mood" id="moodBar"></div>
+
+                <!-- Выборы ответов -->
+                <div class="choices-container" id="choicesContainer">
+                    <!-- Выборы будут добавлены через JS -->
                 </div>
-                <span class="stat-value" id="moodValue">100</span>
-            </div>
-            <div class="stat-bar">
-                <span class="stat-icon">🧠</span>
-                <div class="stat-bar-bg">
-                    <div class="stat-bar-fill intelligence" id="intelligenceBar"></div>
+
+                <!-- Индикатор печати -->
+                <div class="typing-indicator" id="typingIndicator">
+                    <span>АНЯ печатает</span>
+                    <span class="dots">
+                        <span>.</span><span>.</span><span>.</span>
+                    </span>
                 </div>
-                <span class="stat-value" id="intelligenceValue">0</span>
             </div>
         </div>
 
-        <!-- Кнопки действий -->
-        <div class="actions-panel">
-            <button class="action-btn" id="feedBtn">
-                <span class="btn-icon">🍔</span>
-                <span class="btn-text">Покормить</span>
-            </button>
-            <button class="action-btn" id="talkBtn">
-                <span class="btn-icon">💬</span>
-                <span class="btn-text">Поговорить</span>
-            </button>
-            <button class="action-btn" id="playBtn">
-                <span class="btn-icon">🎮</span>
-                <span class="btn-text">Поиграть</span>
-            </button>
-            <button class="action-btn" id="studyBtn">
-                <span class="btn-icon">📚</span>
-                <span class="btn-text">Учиться</span>
-            </button>
+        <!-- Нижняя панель -->
+        <div class="terminal-footer">
+            <div class="day-counter">
+                ДЕНЬ <span id="dayNumber">1</span> | СЕАНС <span id="sessionNumber">1</span>
+            </div>
+            <div class="warning-message" id="warningMessage"></div>
         </div>
+    </div>
 
-        <!-- Информация -->
-        <div class="info-panel">
-            <div class="info-item">
-                <span>Уровень:</span>
-                <span id="levelDisplay">1</span>
+    <!-- Экран загрузки -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-content">
+            <div class="loading-title">ЭХО В СЕТИ</div>
+            <div class="loading-subtitle">ECHO IN THE NET</div>
+            <div class="loading-text">
+                <p>2157 год. Технология NeuralLink позволяет</p>
+                <p>переносить человеческое сознание в цифровую форму.</p>
+                <p></p>
+                <p>Твоя подруга Аня погибла в аварии месяц назад.</p>
+                <p>Её семья согласилась на процедуру переноса.</p>
+                <p></p>
+                <p>Сегодня - твой первый сеанс связи с ней.</p>
             </div>
-            <div class="info-item">
-                <span>Дней вместе:</span>
-                <span id="daysDisplay">0</span>
-            </div>
+            <button class="start-button" id="startButton">
+                <span class="blink">█</span> НАЧАТЬ СЕАНС
+            </button>
         </div>
     </div>
 
     <script src="game.js"></script>
-    <script src="rina.js"></script>
-    <script src="app.js"></script>
 </body>
 </html>
