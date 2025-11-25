@@ -199,10 +199,15 @@ class EchoGame {
         
         messagesContainer.appendChild(messageDiv);
         
-        // Прокрутка вниз с небольшой задержкой
+        // Прокрутка вниз
+        requestAnimationFrame(() => {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        });
+        
+        // Дополнительная прокрутка через 200мс для надёжности
         setTimeout(() => {
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }, 100);
+        }, 200);
     }
     
     showChoices(choices) {
@@ -217,6 +222,12 @@ class EchoGame {
             button.addEventListener('click', () => this.makeChoice(choice, index));
             container.appendChild(button);
         });
+        
+        // Прокручиваем к выборам
+        setTimeout(() => {
+            const messagesContainer = document.getElementById('chatMessages');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }, 100);
     }
     
     makeChoice(choice, index) {
