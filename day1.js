@@ -26,11 +26,11 @@ function getDay1Scenes() {
             ],
             choices: [
                 {
-                    text: 'Написать: "Привет"',
+                    text: 'Привет',
                     effects: { stability: 5 }
                 },
                 {
-                    text: 'Написать: "Аня, ты меня слышишь?"',
+                    text: 'Аня, ты меня слышишь?',
                     effects: { stability: 3 }
                 },
                 {
