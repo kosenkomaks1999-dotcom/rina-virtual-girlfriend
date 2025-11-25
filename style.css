@@ -189,7 +189,7 @@ body {
     overflow-y: scroll;
     overflow-x: hidden;
     padding: 5px;
-    padding-bottom: 120px;
+    padding-bottom: 10px;
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -276,13 +276,17 @@ body {
 
 /* Выборы */
 .choices-container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
     padding: 10px;
     border-top: 2px solid #00ff00;
     background: #000;
     display: none;
-    flex-shrink: 0;
     max-height: 40vh;
     overflow-y: auto;
+    z-index: 10;
 }
 
 .choices-container.active {
@@ -322,12 +326,17 @@ body {
 
 /* Индикатор печати */
 .typing-indicator {
-    padding: 15px 20px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 10px;
     border-top: 2px solid #00ff00;
-    background: rgba(0, 255, 0, 0.05);
+    background: #000;
     display: none;
     align-items: center;
     gap: 10px;
+    z-index: 10;
 }
 
 .typing-indicator.active {
