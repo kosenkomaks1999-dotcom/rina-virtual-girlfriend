@@ -12,7 +12,9 @@ class DataCleanupGame {
         this.ctx = null;
         this.gameActive = true;
         this.spawnTimer = 0;
-        this.spawnInterval = 60; // Каждые 60 фреймов
+        this.spawnInterval = 1000; // Каждую секунду (в миллисекундах)
+        this.lastTime = 0;
+        this.lastSpawnTime = 0;
         
         this.init();
     }
@@ -74,7 +76,7 @@ class DataCleanupGame {
             y: -50,
             width: 60,
             height: 40,
-            speed: 1 + Math.random() * 1.5,
+            speed: 50 + Math.random() * 30, // Пикселей в секунду
             isError: isError,
             text: isError ? this.getErrorText() : this.getSafeText(),
             clicked: false,
@@ -174,20 +176,24 @@ class DataCleanupGame {
         }
     }
     
-    animate() {
+    animate(currentTime = 0) {
         if (!this.gameActive) return;
+        
+        // Вычисляем deltaTime (время между кадрами в секундах)
+        if (this.lastTime === 0) this.lastTime = currentTime;
+        const deltaTime = (currentTime - this.lastTime) / 1000;
+        this.lastTime = currentTime;
         
         // Очистка
         this.ctx.fillStyle = '#000';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
-        // Спавн новых блоков
-        this.spawnTimer++;
-        if (this.spawnTimer >= this.spawnInterval) {
+        // Спавн новых блоков (на основе времени, а не кадров)
+        if (currentTime - this.lastSpawnTime >= this.spawnInterval) {
             this.spawnBlock();
-            this.spawnTimer = 0;
+            this.lastSpawnTime = currentTime;
             // Ускоряем со временем
-            this.spawnInterval = Math.max(30, this.spawnInterval - 1);
+            this.spawnInterval = Math.max(500, this.spawnInterval - 20);
         }
         
         // Обновление и отрисовка блоков
@@ -196,9 +202,9 @@ class DataCleanupGame {
             
             if (block.isParticle) {
                 // Частицы
-                block.x += block.vx;
-                block.y += block.vy;
-                block.life--;
+                block.x += block.vx * deltaTime * 60;
+                block.y += block.vy * deltaTime * 60;
+                block.life -= deltaTime * 60;
                 block.alpha = block.life / 30;
                 
                 if (block.life <= 0) {
@@ -213,7 +219,7 @@ class DataCleanupGame {
             } else {
                 // Обычные блоки
                 if (!block.clicked) {
-                    block.y += block.speed;
+                    block.y += block.speed * deltaTime;
                     
                     // Удаляем если вышли за экран
                     if (block.y > this.canvas.height) {
@@ -262,7 +268,7 @@ class DataCleanupGame {
             }
         }
         
-        requestAnimationFrame(() => this.animate());
+        requestAnimationFrame((time) => this.animate(time));
     }
     
     win() {
