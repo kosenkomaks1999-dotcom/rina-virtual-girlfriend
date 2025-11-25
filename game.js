@@ -172,10 +172,20 @@ class EchoGame {
         const message = messages[index];
         
         // Показываем индикатор печати
-        document.getElementById('typingIndicator').classList.add('active');
+        const typingIndicator = document.getElementById('typingIndicator');
+        const messagesContainer = document.getElementById('chatMessages');
+        typingIndicator.classList.add('active');
+        
+        // Добавляем отступ снизу равный высоте индикатора печати
+        setTimeout(() => {
+            const indicatorHeight = typingIndicator.offsetHeight;
+            messagesContainer.style.paddingBottom = indicatorHeight + 'px';
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }, 50);
         
         setTimeout(() => {
-            document.getElementById('typingIndicator').classList.remove('active');
+            typingIndicator.classList.remove('active');
+            messagesContainer.style.paddingBottom = '10px';
             this.addMessage(message.text, message.type || 'anya', message.glitch);
             
             // Следующее сообщение
