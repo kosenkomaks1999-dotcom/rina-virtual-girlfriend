@@ -201,7 +201,14 @@ class EchoGame {
         `;
         
         messagesContainer.appendChild(messageDiv);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        
+        // Принудительная прокрутка вниз с задержкой для рендеринга
+        setTimeout(() => {
+            messagesContainer.scrollTo({
+                top: messagesContainer.scrollHeight,
+                behavior: 'smooth'
+            });
+        }, 50);
     }
     
     showChoices(choices) {
@@ -216,6 +223,11 @@ class EchoGame {
             button.addEventListener('click', () => this.makeChoice(choice, index));
             container.appendChild(button);
         });
+        
+        // Прокручиваем к выборам
+        setTimeout(() => {
+            container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
     }
     
     makeChoice(choice, index) {
