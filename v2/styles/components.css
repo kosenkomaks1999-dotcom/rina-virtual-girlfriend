@@ -1,0 +1,415 @@
+/* UI компоненты */
+
+/* Модальные окна */
+.modal {
+    background: #000;
+    border: 2px solid #00ff00;
+    max-width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 0 30px rgba(0, 255, 0, 0.5);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 2px solid #00ff00;
+    background: rgba(0, 255, 0, 0.05);
+}
+
+.modal-header h2 {
+    font-size: 1.5em;
+    margin: 0;
+}
+
+.close-btn {
+    background: transparent;
+    border: 2px solid #00ff00;
+    color: #00ff00;
+    font-size: 1.5em;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    font-family: 'VT323', monospace;
+    transition: all 0.3s;
+}
+
+.close-btn:hover {
+    background: rgba(0, 255, 0, 0.2);
+}
+
+.modal-content {
+    padding: 15px;
+}
+
+/* Статистика */
+.stats-section {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #00ff00;
+    background: rgba(0, 255, 0, 0.02);
+}
+
+.stats-section h3 {
+    margin-bottom: 10px;
+    font-size: 1.3em;
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(0, 255, 0, 0.2);
+}
+
+.stat-row:last-child {
+    border-bottom: none;
+}
+
+/* Цели */
+.goal-item {
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid #00ff00;
+    background: rgba(0, 255, 0, 0.02);
+}
+
+.goal-name {
+    font-size: 1.1em;
+    margin-bottom: 8px;
+}
+
+.goal-progress {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.progress-bar {
+    flex: 1;
+    height: 20px;
+    border: 1px solid #00ff00;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.progress-fill {
+    height: 100%;
+    background: #00ff00;
+    transition: width 0.3s;
+}
+
+/* Активности */
+.activity-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.activity-card {
+    padding: 15px;
+    border: 2px solid #00ff00;
+    background: rgba(0, 255, 0, 0.05);
+    cursor: pointer;
+    font-family: 'VT323', monospace;
+    color: #00ff00;
+    transition: all 0.3s;
+    text-align: center;
+}
+
+.activity-card:hover {
+    background: rgba(0, 255, 0, 0.15);
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+}
+
+.activity-icon {
+    font-size: 3em;
+    margin-bottom: 10px;
+}
+
+.activity-name {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+
+.activity-effects {
+    font-size: 0.9em;
+    margin-bottom: 8px;
+}
+
+.activity-energy {
+    font-size: 0.9em;
+    opacity: 0.7;
+}
+
+.effect {
+    margin: 0 3px;
+}
+
+.effect.positive {
+    color: #00ff00;
+}
+
+.effect.negative {
+    color: #ff0000;
+}
+
+/* Дневник */
+.diary-entry {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #00ff00;
+    background: rgba(0, 255, 0, 0.02);
+}
+
+.diary-date {
+    font-size: 0.9em;
+    opacity: 0.7;
+    margin-bottom: 5px;
+}
+
+.diary-mood {
+    font-size: 1.1em;
+    margin-bottom: 10px;
+}
+
+.diary-text {
+    line-height: 1.5;
+}
+
+/* Достижения */
+.achievements-stats {
+    text-align: center;
+    font-size: 1.3em;
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #00ff00;
+    background: rgba(0, 255, 0, 0.05);
+}
+
+.achievement-card {
+    display: flex;
+    gap: 15px;
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 2px solid #00ff00;
+    background: rgba(0, 255, 0, 0.02);
+}
+
+.achievement-card.locked {
+    opacity: 0.5;
+    border-color: rgba(0, 255, 0, 0.3);
+}
+
+.achievement-card.unlocked {
+    background: rgba(0, 255, 0, 0.1);
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
+}
+
+.achievement-icon {
+    font-size: 3em;
+}
+
+.achievement-info {
+    flex: 1;
+}
+
+.achievement-name {
+    font-size: 1.3em;
+    margin-bottom: 5px;
+}
+
+.achievement-description {
+    font-size: 1em;
+    opacity: 0.8;
+    margin-bottom: 5px;
+}
+
+.achievement-date {
+    font-size: 0.9em;
+    opacity: 0.6;
+}
+
+/* Уведомление о достижении */
+.achievement-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    opacity: 0;
+    transform: translateX(400px);
+    transition: all 0.3s;
+}
+
+.achievement-notification.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.achievement-popup {
+    display: flex;
+    gap: 15px;
+    padding: 20px;
+    border: 2px solid #00ff00;
+    background: #000;
+    box-shadow: 0 0 30px rgba(0, 255, 0, 0.5);
+    min-width: 300px;
+}
+
+.achievement-popup-icon {
+    font-size: 3em;
+}
+
+.achievement-popup-title {
+    font-size: 1em;
+    opacity: 0.7;
+    margin-bottom: 5px;
+}
+
+.achievement-popup-name {
+    font-size: 1.3em;
+}
+
+/* Воспоминания */
+.memory-card {
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 1px solid #00ff00;
+    background: rgba(0, 255, 0, 0.02);
+}
+
+.memory-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.memory-type {
+    font-size: 1.5em;
+}
+
+.memory-importance {
+    font-size: 1.2em;
+}
+
+.memory-text {
+    line-height: 1.5;
+    margin-bottom: 8px;
+}
+
+.memory-date {
+    font-size: 0.9em;
+    opacity: 0.6;
+}
+
+/* Секреты */
+.secrets-info {
+    text-align: center;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid #00ff00;
+    background: rgba(0, 255, 0, 0.05);
+}
+
+.secret-card {
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 2px solid #00ff00;
+    background: rgba(0, 255, 0, 0.02);
+}
+
+.secret-card.locked {
+    opacity: 0.5;
+    border-color: rgba(0, 255, 0, 0.3);
+}
+
+.secret-card.available {
+    border-color: #ffff00;
+    background: rgba(255, 255, 0, 0.05);
+    box-shadow: 0 0 15px rgba(255, 255, 0, 0.2);
+}
+
+.secret-card.revealed {
+    background: rgba(0, 255, 0, 0.1);
+}
+
+.secret-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.secret-icon {
+    font-size: 1.5em;
+}
+
+.secret-trust {
+    font-size: 1em;
+    opacity: 0.7;
+}
+
+.secret-title {
+    font-size: 1.3em;
+    margin-bottom: 10px;
+}
+
+.secret-text {
+    line-height: 1.5;
+}
+
+.reveal-btn {
+    padding: 10px 20px;
+    margin-top: 10px;
+    background: transparent;
+    border: 2px solid #ffff00;
+    color: #ffff00;
+    font-family: 'VT323', monospace;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.reveal-btn:hover {
+    background: rgba(255, 255, 0, 0.2);
+    box-shadow: 0 0 20px rgba(255, 255, 0, 0.3);
+}
+
+/* Пустое состояние */
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    opacity: 0.5;
+    font-size: 1.2em;
+}
+
+/* Меню */
+.menu-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.menu-item {
+    padding: 20px;
+    border: 2px solid #00ff00;
+    background: rgba(0, 255, 0, 0.05);
+    cursor: pointer;
+    font-family: 'VT323', monospace;
+    color: #00ff00;
+    font-size: 1.2em;
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.menu-item:hover {
+    background: rgba(0, 255, 0, 0.15);
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
+}
+
+.menu-item .icon {
+    font-size: 2em;
+}

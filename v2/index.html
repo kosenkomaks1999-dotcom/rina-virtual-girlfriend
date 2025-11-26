@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Эхо в Сети v2.0 - Tamagotchi Edition</title>
+    
+    <!-- Preload -->
+    <link rel="preload" href="avatar/обыч.png" as="image">
+    <link rel="preload" href="avatar/обычморгание.png" as="image">
+    <link rel="preload" href="avatar/грусть.png" as="image">
+    <link rel="preload" href="avatar/грустьморгание.png" as="image">
+    <link rel="preload" href="avatar/радость.png" as="image">
+    <link rel="preload" href="avatar/радость моргание.png" as="image">
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=VT323&display=swap" as="style">
+    
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/components.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Экран загрузки -->
+        <div id="loadingScreen" class="screen active">
+            <div class="loading-content">
+                <div class="loading-title">ЭХО В СЕТИ v2.0</div>
+                <div class="loading-subtitle">TAMAGOTCHI EDITION</div>
+                <div class="loading-text">
+                    <p>2157 год. Технология NeuralLink.</p>
+                    <p>Твоя подруга Аня - цифровое сознание.</p>
+                    <p>Каждый день уникален. Каждый выбор важен.</p>
+                    <p>Она живая. Она чувствует. Она ждёт тебя.</p>
+                </div>
+                <button class="start-button" id="startButton">
+                    <span class="blink">█</span> НАЧАТЬ
+                </button>
+            </div>
+        </div>
+
+        <!-- Главный экран -->
+        <div id="mainScreen" class="screen">
+            <!-- Панель состояния -->
+            <div class="status-panel">
+                <div class="anya-avatar">
+                    <img id="anyaImage" src="avatar/обыч.png" alt="АНЯ">
+                    <div class="signal-overlay"></div>
+                </div>
+                <div class="anya-info">
+                    <div class="anya-name">АНЯ</div>
+                    <div class="anya-mood" id="anyaMood">😊 Счастлива</div>
+                    <div class="day-info">День <span id="dayNumber">1</span></div>
+                </div>
+            </div>
+
+            <!-- Панель параметров -->
+            <div class="stats-panel">
+                <div class="stat-item">
+                    <span class="stat-label">Стабильность</span>
+                    <div class="stat-bar">
+                        <div class="stat-fill" id="stabilityBar" style="width: 100%"></div>
+                    </div>
+                    <span class="stat-value" id="stabilityValue">100%</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Настроение</span>
+                    <div class="stat-bar mood">
+                        <div class="stat-fill" id="moodBar" style="width: 70%"></div>
+                    </div>
+                    <span class="stat-value" id="moodValue">70%</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Энергия</span>
+                    <div class="stat-bar energy">
+                        <div class="stat-fill" id="energyBar" style="width: 80%"></div>
+                    </div>
+                    <span class="stat-value" id="energyValue">80%</span>
+                </div>
+            </div>
+
+            <!-- Чат -->
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="system-message">
+                        <span class="timestamp">[00:00:00]</span>
+                        <span class="text">СИСТЕМА: Подключение к сознанию #A-7734...</span>
+                    </div>
+                </div>
+                
+                <!-- Индикатор печати -->
+                <div class="typing-indicator" id="typingIndicator">
+                    <span>АНЯ печатает</span>
+                    <span class="dots"><span>.</span><span>.</span><span>.</span></span>
+                </div>
+                
+                <!-- Выборы -->
+                <div class="choices-container" id="choicesContainer"></div>
+            </div>
+
+            <!-- Нижняя панель -->
+            <div class="bottom-panel">
+                <button class="action-btn" id="activitiesBtn">
+                    <span class="icon">🎮</span>
+                    <span>Активности</span>
+                </button>
+                <button class="action-btn" id="statsBtn">
+                    <span class="icon">📊</span>
+                    <span>Статистика</span>
+                </button>
+                <button class="action-btn" id="menuBtn">
+                    <span class="icon">☰</span>
+                    <span>Меню</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Экран активностей -->
+        <div id="activitiesScreen" class="screen overlay">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2>Активности</h2>
+                    <button class="close-btn" data-close="activitiesScreen">✕</button>
+                </div>
+                <div class="modal-content">
+                    <div class="activity-grid" id="activityGrid"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Экран статистики -->
+        <div id="statsScreen" class="screen overlay">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2>Статистика</h2>
+                    <button class="close-btn" data-close="statsScreen">✕</button>
+                </div>
+                <div class="modal-content">
+                    <div id="statsContent"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Экран меню -->
+        <div id="menuScreen" class="screen overlay">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2>Меню</h2>
+                    <button class="close-btn" data-close="menuScreen">✕</button>
+                </div>
+                <div class="modal-content">
+                    <div class="menu-items">
+                        <button class="menu-item" id="diaryBtn">
+                            <span class="icon">📔</span>
+                            <span>Дневник</span>
+                        </button>
+                        <button class="menu-item" id="memoriesBtn">
+                            <span class="icon">💭</span>
+                            <span>Воспоминания</span>
+                        </button>
+                        <button class="menu-item" id="achievementsBtn">
+                            <span class="icon">🏆</span>
+                            <span>Достижения</span>
+                        </button>
+                        <button class="menu-item" id="secretsBtn">
+                            <span class="icon">🔐</span>
+                            <span>Секреты</span>
+                        </button>
+                        <button class="menu-item" id="settingsBtn">
+                            <span class="icon">⚙️</span>
+                            <span>Настройки</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core системы -->
+    <script src="core/state.js"></script>
+    <script src="core/memories.js"></script>
+    <script src="core/personality.js"></script>
+    <script src="core/diary.js"></script>
+    <script src="core/events.js"></script>
+    <script src="core/dialogue-generator.js"></script>
+    <script src="core/conversation.js"></script>
+    <script src="core/activities.js"></script>
+    <script src="core/time.js"></script>
+    <script src="core/save.js"></script>
+    <script src="core/mini-stories.js"></script>
+    <script src="core/secrets.js"></script>
+    <script src="core/goals.js"></script>
+    <script src="core/achievements.js"></script>
+    <script src="core/avatar.js"></script>
+    
+    <!-- UI компоненты -->
+    <script src="ui/chat.js"></script>
+    <script src="ui/stats.js"></script>
+    <script src="ui/activities.js"></script>
+    <script src="ui/diary.js"></script>
+    <script src="ui/achievements.js"></script>
+    <script src="ui/memories.js"></script>
+    <script src="ui/secrets.js"></script>
+    
+    <!-- Главный файл -->
+    <script src="game.js"></script>
+</body>
+</html>

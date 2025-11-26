@@ -1,6 +1,12 @@
-// Игра "Эхо в Сети"
+// Игра "Эхо в Сети" - Версия 2.0 (Тамагочи)
 class EchoGame {
     constructor() {
+        // Новая система состояний
+        this.anyaState = new AnyaState();
+        this.eventSystem = new EventSystem(this.anyaState);
+        this.dialogueGenerator = new DialogueGenerator(this.anyaState);
+        
+        // Старые параметры (для совместимости)
         this.stability = 100;
         this.trust = 50;
         this.humanity = 75;
@@ -32,6 +38,9 @@ class EchoGame {
         // Система диалогов
         this.dialogueSystem = null;
         
+        // VRM Avatar
+        this.vrmAvatar = null;
+        
         this.init();
     }
     
@@ -46,6 +55,9 @@ class EchoGame {
         
         // Инициализация системы диалогов
         this.dialogueSystem = new DialogueSystem(this);
+        
+        // Инициализация VRM аватара
+        this.initVRMAvatar();
         
         // Загрузка сохранения
         this.loadGame();
@@ -78,30 +90,72 @@ class EchoGame {
     }
     
     setupCanvas() {
-        this.characterImg = document.getElementById('characterImage');
         this.signalNoise = document.getElementById('signalNoise');
-        this.applyGlitchEffect();
         this.applySignalNoise();
     }
     
-    applyGlitchEffect() {
-        // Применяем глитч эффект к изображению при низкой стабильности
-        setInterval(() => {
-            if (this.stability < 50 && Math.random() < 0.3) {
-                const effects = [
-                    'hue-rotate(180deg) saturate(3)',
-                    'invert(1) hue-rotate(90deg)',
-                    'contrast(2) brightness(1.5) hue-rotate(270deg)',
-                    'saturate(5) hue-rotate(180deg)'
-                ];
-                this.characterImg.style.filter = effects[Math.floor(Math.random() * effects.length)];
-                
-                setTimeout(() => {
-                    this.characterImg.style.filter = '';
-                }, 100);
+    initVRMAvatar() {
+        // Ждём загрузки всех библиотек
+        const initAvatar = () => {
+            if (typeof VRMAvatar === 'undefined' || typeof THREE === 'undefined' || typeof THREE.VRM === 'undefined') {
+                console.log('Ожидание загрузки VRM библиотек...');
+                setTimeout(initAvatar, 200);
+                return;
             }
-        }, 500);
+            
+            console.log('✅ Все библиотеки загружены, создание аватара...');
+            
+            try {
+                this.vrmAvatar = new VRMAvatar('vrmCanvas', 'qwe.vrm');
+            
+            // Скрыть индикатор загрузки после загрузки
+            setTimeout(() => {
+                const loading = document.getElementById('vrmLoading');
+                if (loading && this.vrmAvatar && this.vrmAvatar.isLoaded) {
+                    loading.classList.add('hidden');
+                }
+            }, 3000);
+            
+            // Обновление аватара по состоянию
+            setInterval(() => this.updateVRMAvatar(), 1000);
+            
+            // Слежение за курсором
+            document.addEventListener('mousemove', (e) => {
+                if (this.vrmAvatar && this.vrmAvatar.isLoaded) {
+                    const canvas = document.getElementById('vrmCanvas');
+                    const rect = canvas.getBoundingClientRect();
+                    const x = ((e.clientX - rect.left) / rect.width - 0.5) * 0.3;
+                    const y = -((e.clientY - rect.top) / rect.height - 0.5) * 0.3;
+                    this.vrmAvatar.lookAt(x, y + 1.35, 0);
+                }
+            });
+                
+            } catch (error) {
+                console.error('Ошибка инициализации VRM:', error);
+            }
+        };
+        
+        // Запускаем инициализацию
+        initAvatar();
     }
+    
+    updateVRMAvatar() {
+        if (!this.vrmAvatar || !this.vrmAvatar.isLoaded) return;
+        
+        // Устанавливаем настроение по состоянию
+        const mood = this.anyaState.currentMood;
+        this.vrmAvatar.setMood(mood);
+        
+        // Глитч эффект при низкой стабильности
+        if (this.stability < 50) {
+            const intensity = (50 - this.stability) / 50;
+            if (Math.random() < 0.3) {
+                this.vrmAvatar.applyGlitch(intensity);
+            }
+        }
+    }
+    
+
     
     applySignalNoise() {
         // Волны помех теперь постоянные, просто меняется интенсивность
@@ -325,6 +379,14 @@ class EchoGame {
     }
     
     addMessage(text, type, isGlitch = false) {
+        // Реакция аватара на сообщения
+        if (this.vrmAvatar && this.vrmAvatar.isLoaded) {
+            if (type === 'anya') {
+                // Моргание при каждом сообщении Ани
+                this.vrmAvatar.react('blink');
+            }
+        }
+        
         const messagesContainer = document.getElementById('chatMessages');
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${type}${isGlitch ? ' glitch' : ''}`;
@@ -772,6 +834,8 @@ class EchoGame {
     
     // Показать главное меню
     showMainMenu() {
+        // Очищаем UI перед показом меню
+        this.clearUI();
         document.getElementById('mainMenu').style.display = 'flex';
         document.querySelector('.terminal-container').style.display = 'none';
         this.updateMenuMoney();
@@ -831,9 +895,18 @@ class EchoGame {
             this.money -= cost;
             this.upgrades[type]++;
             
+            // Применяем эффекты улучшений
             if (type === 'processor') {
                 this.clickPower = 1 + this.upgrades.processor;
                 document.getElementById('clickValue').textContent = this.clickPower;
+            } else if (type === 'stabilizer') {
+                // Стабилизатор немного восстанавливает стабильность при покупке
+                this.stability = Math.min(100, this.stability + 5);
+                this.updateStats();
+                alert('Стабилизатор установлен! Частота глитчей снижена. Стабильность +5.');
+            } else if (type === 'memory') {
+                // Память открывает новые темы для разговора
+                alert('Модуль памяти установлен! Доступны новые темы для разговора с Аней.');
             }
             
             this.updateMenuMoney();
@@ -852,8 +925,30 @@ class EchoGame {
         document.getElementById('processorCost').textContent = 200 * (this.upgrades.processor + 1);
     }
     
+    // Очистить UI от старых элементов
+    clearUI() {
+        // Скрываем выборы
+        const choicesContainer = document.getElementById('choicesContainer');
+        choicesContainer.classList.remove('active');
+        choicesContainer.innerHTML = '';
+        
+        // Скрываем индикатор печати
+        const typingIndicator = document.getElementById('typingIndicator');
+        typingIndicator.classList.remove('active');
+        
+        // Убираем отступ снизу у чата
+        const messagesContainer = document.getElementById('chatMessages');
+        messagesContainer.style.paddingBottom = '10px';
+        
+        // Обновляем позицию кнопки меню
+        this.updateMenuButtonPosition();
+    }
+    
     // Начать новый день с Аней
     startNewDay() {
+        // Очищаем старые выборы и индикаторы
+        this.clearUI();
+        
         // Проверяем, оплачен ли уже этот день
         if (this.paidDay >= this.day) {
             // День уже оплачен, просто возвращаемся в чат
@@ -936,7 +1031,9 @@ class EchoGame {
     // Показать доступные темы для разговора
     showTopics() {
         const mentalState = this.stability < 30 ? 'glitching' : 'stable';
-        const topics = this.dialogueSystem.getAvailableTopics(this.relationship, mentalState);
+        // Улучшение памяти открывает больше тем
+        const effectiveRelationship = this.relationship + (this.upgrades.memory * 10);
+        const topics = this.dialogueSystem.getAvailableTopics(effectiveRelationship, mentalState);
         
         const choices = topics.map(topic => ({
             text: topic.text,
@@ -1035,6 +1132,8 @@ class EchoGame {
     
     // Выход в меню из чата
     exitToMenu() {
+        // Очищаем UI перед выходом
+        this.clearUI();
         this.showMainMenu();
         document.getElementById('menuExitButton').style.display = 'none';
     }
@@ -1066,13 +1165,35 @@ class EchoGame {
     
     // Пропустить день
     skipDay() {
-        if (confirm('Пропустить день? Аня будет ждать вас. Потребуется новая оплата.')) {
+        // Последствия зависят от отношений
+        let warningText = 'Пропустить день? Аня будет ждать вас. Потребуется новая оплата.';
+        
+        if (this.relationship >= 50) {
+            warningText = 'Пропустить день? Аня очень привязана к вам и будет страдать в одиночестве. Это снизит ваши отношения.';
+        } else if (this.relationship >= 30) {
+            warningText = 'Пропустить день? Аня будет скучать. Это может повлиять на ваши отношения.';
+        }
+        
+        if (confirm(warningText)) {
+            // Штраф к отношениям за пропуск
+            const relationshipPenalty = Math.floor(this.relationship * 0.15); // 15% от текущих отношений
+            this.relationship = Math.max(0, this.relationship - relationshipPenalty);
+            
+            // Небольшой штраф к стабильности
+            this.stability = Math.max(20, this.stability - 10);
+            
             this.day++;
-            // Сбрасываем оплаченный день, чтобы потребовалась новая оплата
-            // paidDay остается прежним, поэтому новый день не будет оплачен
             document.getElementById('dayNumber').textContent = this.day;
+            this.updateStats();
             this.exitToMenu();
             this.saveGame();
+            
+            // Показываем уведомление о последствиях
+            if (relationshipPenalty > 0) {
+                setTimeout(() => {
+                    alert(`Отношения с Аней ухудшились (-${relationshipPenalty}). Стабильность снизилась (-10).`);
+                }, 300);
+            }
         }
     }
     

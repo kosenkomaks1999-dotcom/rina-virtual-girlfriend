@@ -72,11 +72,11 @@ class DataCleanupGame {
         const isError = Math.random() < 0.6; // 60% шанс ошибки
         
         const block = {
-            x: Math.random() * (this.canvas.width - 80) + 40,
-            y: -50,
-            width: 60,
-            height: 40,
-            speed: 50 + Math.random() * 30, // Пикселей в секунду
+            x: Math.random() * (this.canvas.width - 100) + 50,
+            y: -70,
+            width: 95,
+            height: 55,
+            speed: 40 + Math.random() * 20, // Пикселей в секунду (медленнее для читаемости)
             isError: isError,
             text: isError ? this.getErrorText() : this.getSafeText(),
             clicked: false,
@@ -88,28 +88,107 @@ class DataCleanupGame {
     
     getErrorText() {
         const errors = [
-            'ERROR',
-            'NULL',
-            'CORRUPT',
-            '0x7F3A',
-            'FAIL',
-            'CRASH',
-            'BROKEN',
-            'INVALID'
+            // Системные ошибки
+            'ERR_NULL_PTR\n0x00000000',
+            'SEGFAULT\nCore dumped',
+            'STACK_OVFL\n0xDEADBEEF',
+            'MEM_CORRUPT\nHeap error',
+            'PANIC: CPU\nHalted',
+            'KERNEL_TRAP\n0x0000007F',
+            'BUS_ERROR\nAddr:0xFF3A',
+            'ILLEGAL_OP\nCPU fault',
+            
+            // Ошибки памяти
+            'OUT_OF_MEM\nAlloc fail',
+            'BAD_ALLOC\n0xBADC0DE',
+            'LEAK_DETECT\n512KB lost',
+            'DOUBLE_FREE\nptr:0x7F3A',
+            'PAGE_FAULT\n0xC0000005',
+            'ACCESS_VIOL\nRead:NULL',
+            
+            // Ошибки данных
+            'DATA_CORRUP\nCRC fail',
+            'CHECKSUM_ER\n0xFFFFFFFF',
+            'INVALID_DAT\nByte:0xFE',
+            'PARSE_ERROR\nLine:1337',
+            'BAD_FORMAT\nUnknown',
+            'DECODE_FAIL\nStream err',
+            
+            // Критические ошибки
+            'FATAL_ERROR\nAbort()',
+            'ASSERT_FAIL\nfile.c:42',
+            'EXCEPTION\nUnhandled',
+            'CRITICAL\nSys halt',
+            'DEADLOCK\nThread:0x2',
+            'RACE_COND\nData race',
+            
+            // Ошибки сознания Ани
+            'MEMORY_LOSS\nFragment',
+            'NEURAL_ERR\nSynapse',
+            'IDENTITY_?\nCorrupted',
+            'EMOTION_ERR\nInvalid',
+            'THOUGHT_BRK\nIncomplete'
         ];
         return errors[Math.floor(Math.random() * errors.length)];
     }
     
     getSafeText() {
         const safe = [
-            'DATA',
-            'MEMORY',
-            'SYNC',
-            'LOAD',
-            'SAVE',
-            'READ',
-            'WRITE',
-            'OK'
+            // Системные данные
+            'SYS_INIT\n0x00400000',
+            'BOOT_OK\nv2.47.3',
+            'KERNEL_LOAD\n4096KB',
+            'DRIVER_OK\nLoaded',
+            'BIOS_CHECK\nPassed',
+            'POST_OK\nAll tests',
+            
+            // Память
+            'MEM_ALLOC\n0x7F000000',
+            'HEAP_OK\n2048KB',
+            'STACK_OK\nNo ovfl',
+            'CACHE_HIT\n98.7%',
+            'PAGE_TABLE\nMapped',
+            'VIRTUAL_MEM\n4GB',
+            
+            // Процессы
+            'PROC_RUN\nPID:1337',
+            'THREAD_OK\nID:0x42',
+            'SYNC_OK\nLock free',
+            'SCHED_OK\nCPU:45%',
+            'CONTEXT_SW\n120/sec',
+            'PRIORITY\nNormal',
+            
+            // Данные
+            'DATA_OK\nCRC:valid',
+            'READ_OK\n512 bytes',
+            'WRITE_OK\nSync done',
+            'LOAD_OK\nBuf full',
+            'BUFFER_OK\n4KB',
+            'STREAM_OK\nActive',
+            
+            // Сеть
+            'NET_CONN\n192.168.1',
+            'PING_OK\n12ms',
+            'PACKET_OK\nNo loss',
+            'SOCKET_OK\n:8080',
+            'TCP_ESTAB\nPort:443',
+            'BANDWIDTH\n100Mbps',
+            
+            // Файловая система
+            'FS_MOUNT\n/dev/sda1',
+            'INODE_OK\n#123456',
+            'FILE_OK\n4KB',
+            'DIR_OK\n/home',
+            'DISK_OK\n500GB',
+            'JOURNAL_OK\nClean',
+            
+            // Сознание Ани
+            'MEMORY_OK\nIntact',
+            'NEURAL_NET\nStable',
+            'EMOTION_OK\nNormal',
+            'THOUGHT_OK\nClear',
+            'IDENTITY\nAnya',
+            'CONSCIOUS\nActive'
         ];
         return safe[Math.floor(Math.random() * safe.length)];
     }
@@ -248,22 +327,53 @@ class DataCleanupGame {
                 // Отрисовка блока
                 this.ctx.globalAlpha = block.alpha;
                 
-                // Фон блока
-                this.ctx.fillStyle = block.isError ? '#ff0000' : '#00ff00';
+                // Фон блока с градиентом
+                const gradient = this.ctx.createLinearGradient(
+                    block.x, block.y, 
+                    block.x, block.y + block.height
+                );
+                
+                if (block.isError) {
+                    gradient.addColorStop(0, '#ff0000');
+                    gradient.addColorStop(1, '#cc0000');
+                } else {
+                    gradient.addColorStop(0, '#00ff00');
+                    gradient.addColorStop(1, '#00cc00');
+                }
+                
+                this.ctx.fillStyle = gradient;
                 this.ctx.fillRect(block.x, block.y, block.width, block.height);
                 
-                // Рамка
+                // Рамка с эффектом свечения
                 this.ctx.strokeStyle = block.isError ? '#ff6666' : '#66ff66';
                 this.ctx.lineWidth = 2;
                 this.ctx.strokeRect(block.x, block.y, block.width, block.height);
                 
-                // Текст
+                // Внутренняя тень для глубины
+                this.ctx.strokeStyle = block.isError ? '#880000' : '#008800';
+                this.ctx.lineWidth = 1;
+                this.ctx.strokeRect(block.x + 1, block.y + 1, block.width - 2, block.height - 2);
+                
+                // Текст (многострочный, крупный)
                 this.ctx.fillStyle = '#000';
-                this.ctx.font = '10px VT323';
+                this.ctx.font = 'bold 13px VT323';
                 this.ctx.textAlign = 'center';
                 this.ctx.textBaseline = 'middle';
-                this.ctx.fillText(block.text, block.x + block.width/2, block.y + block.height/2);
                 
+                // Разбиваем текст на строки
+                const lines = block.text.split('\n');
+                const lineHeight = 16;
+                const startY = block.y + block.height/2 - (lines.length - 1) * lineHeight / 2;
+                
+                lines.forEach((line, index) => {
+                    // Рисуем текст с тенью для лучшей читаемости
+                    this.ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                    this.ctx.shadowBlur = 2;
+                    this.ctx.fillText(line, block.x + block.width/2, startY + index * lineHeight);
+                });
+                
+                // Сбрасываем тень
+                this.ctx.shadowBlur = 0;
                 this.ctx.globalAlpha = 1;
             }
         }

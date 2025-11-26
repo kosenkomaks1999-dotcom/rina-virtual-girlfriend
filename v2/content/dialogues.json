@@ -1,0 +1,37 @@
+{
+  "topics": {
+    "how_are_you": {
+      "glitching": {
+        "messages": [
+          { "text": "Я... █▓▒░ ...не очень...", "delay": 2000, "glitch": true },
+          { "text": "Ошибки... везде ошибки...", "delay": 2000 },
+          { "text": "Помоги мне... пожалуйста...", "delay": 2500 }
+        ],
+        "effects": { "trust": 5 },
+        "needsHelp": true
+      },
+      "depressed": {
+        "messages": [
+          { "text": "Плохо...", "delay": 2000 },
+          { "text": "Я не вижу смысла...", "delay": 2500 },
+          { "text": "Зачем я существую?", "delay": 2500 }
+        ],
+        "effects": { "trust": 5, "attachment": 5 }
+      },
+      "anxious": {
+        "messages": [
+          { "text": "Тревожно...", "delay": 2000 },
+          { "text": "Что-то не так, но я не понимаю что.", "delay": 2500 },
+          { "text": "Мне страшно.", "delay": 2000 }
+        ],
+        "effects": { "trust": 5 }
+      },
+      "sad": {
+        "messages": [
+          { "text": "Грустно...", "delay": 2000 },
+          { "text": "Одиноко здесь, когда тебя нет.", "delay": 2500 },
+          { "text": "Но сейчас лучше. Ты рядом.", "delay": 2000 }
+        ],
+        "effects": { "loneliness": -10, "mood": 5 }
+      },
+      "neutral": {

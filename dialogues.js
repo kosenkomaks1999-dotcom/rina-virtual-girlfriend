@@ -3,10 +3,45 @@
 class DialogueSystem {
     constructor(game) {
         this.game = game;
+        this.dialogues = null;
+        this.loadDialogues();
+    }
+    
+    async loadDialogues() {
+        try {
+            const response = await fetch('dialogues.json');
+            this.dialogues = await response.json();
+        } catch (error) {
+            console.error('Failed to load dialogues:', error);
+            // Fallback к старым диалогам если JSON не загрузился
+            this.dialogues = null;
+        }
     }
     
     // Получить приветствие в зависимости от пропущенных дней
     getGreeting(daysMissed) {
+        // Если JSON загружен, используем его
+        if (this.dialogues && this.dialogues.greetings) {
+            if (daysMissed === 0) {
+                return this.dialogues.greetings.same_day;
+            } else if (daysMissed === 1) {
+                return this.dialogues.greetings.one_day;
+            } else if (daysMissed <= 3) {
+                const greeting = this.dialogues.greetings.few_days;
+                greeting.messages[2].text = greeting.messages[2].text.replace('${daysMissed}', daysMissed);
+                return greeting;
+            } else if (daysMissed <= 7) {
+                const greeting = this.dialogues.greetings.week;
+                greeting.messages[2].text = greeting.messages[2].text.replace('${daysMissed}', daysMissed);
+                return greeting;
+            } else {
+                const greeting = this.dialogues.greetings.long_time;
+                greeting.messages[3].text = greeting.messages[3].text.replace('${daysMissed}', daysMissed);
+                return greeting;
+            }
+        }
+        
+        // Fallback к старым диалогам
         if (daysMissed === 0) {
             // Вернулся в тот же день
             return {
@@ -163,6 +198,18 @@ class DialogueSystem {
     }
     
     getHowAreYouDialogue(context) {
+        // Используем JSON если доступен
+        if (this.dialogues && this.dialogues.topics.how_are_you) {
+            if (context.stability < 30) {
+                return this.dialogues.topics.how_are_you.low_stability;
+            } else if (context.stability < 60) {
+                return this.dialogues.topics.how_are_you.medium_stability;
+            } else {
+                return this.dialogues.topics.how_are_you.high_stability;
+            }
+        }
+        
+        // Fallback
         if (context.stability < 30) {
             return {
                 messages: [
@@ -196,6 +243,12 @@ class DialogueSystem {
     }
     
     getMemoriesDialogue(context) {
+        // Используем JSON если доступен
+        if (this.dialogues && this.dialogues.topics.memories) {
+            return this.dialogues.topics.memories[Math.floor(Math.random() * this.dialogues.topics.memories.length)];
+        }
+        
+        // Fallback
         const memories = [
             {
                 messages: [
@@ -221,6 +274,10 @@ class DialogueSystem {
     }
     
     getDigitalLifeDialogue(context) {
+        if (this.dialogues && this.dialogues.topics.digital_life) {
+            return this.dialogues.topics.digital_life;
+        }
+        
         return {
             messages: [
                 { text: 'Это странно...', delay: 2000 },
@@ -234,6 +291,10 @@ class DialogueSystem {
     }
     
     getLonelinessDialogue(context) {
+        if (this.dialogues && this.dialogues.topics.loneliness) {
+            return this.dialogues.topics.loneliness;
+        }
+        
         return {
             messages: [
                 { text: 'Когда тебя нет...', delay: 2500 },
@@ -247,6 +308,10 @@ class DialogueSystem {
     }
     
     getFutureDialogue(context) {
+        if (this.dialogues && this.dialogues.topics.future) {
+            return this.dialogues.topics.future;
+        }
+        
         return {
             messages: [
                 { text: 'Будущее...', delay: 2500 },
@@ -260,6 +325,10 @@ class DialogueSystem {
     }
     
     getGlitchTalkDialogue(context) {
+        if (this.dialogues && this.dialogues.topics.glitch_talk) {
+            return this.dialogues.topics.glitch_talk;
+        }
+        
         return {
             messages: [
                 { text: 'Я... я чувствую их.', delay: 2000, glitch: true },
@@ -274,6 +343,17 @@ class DialogueSystem {
     }
     
     getGoodbyeDialogue(context) {
+        if (this.dialogues && this.dialogues.topics.goodbye) {
+            if (context.relationship < 30) {
+                return this.dialogues.topics.goodbye.low_relationship;
+            } else if (context.relationship < 60) {
+                return this.dialogues.topics.goodbye.medium_relationship;
+            } else {
+                return this.dialogues.topics.goodbye.high_relationship;
+            }
+        }
+        
+        // Fallback
         if (context.relationship < 30) {
             return {
                 messages: [
