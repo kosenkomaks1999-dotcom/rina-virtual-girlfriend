@@ -968,3 +968,88 @@ button, .choice-button, .menu-button, .work-button, .shop-buy-button, .back-butt
         font-size: 0.8em;
     }
 }
+
+
+/* ========================================
+   ИНТЕРАКТИВНЫЙ АВАТАР - ТЫКАНЬЕ
+   ======================================== */
+
+/* Курсор-указатель на аватаре */
+.character-avatar-container {
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+
+.character-avatar-container:active {
+    transform: scale(0.95);
+}
+
+/* Сообщение при тыканье */
+.poke-message {
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.5em;
+    color: #ff69b4;
+    text-shadow: 0 0 10px #ff69b4, 0 0 20px #ff1493;
+    animation: poke-bounce 0.5s ease-out;
+    pointer-events: none;
+    z-index: 100;
+    font-weight: bold;
+}
+
+.poke-message.fade-out {
+    animation: fade-out 0.5s ease-out forwards;
+}
+
+@keyframes poke-bounce {
+    0% {
+        transform: translateX(-50%) translateY(0) scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: translateX(-50%) translateY(-10px) scale(1.2);
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(-50%) translateY(-5px) scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes fade-out {
+    to {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-20px);
+    }
+}
+
+/* Летящие сердечки */
+.floating-heart {
+    position: fixed;
+    font-size: 2em;
+    pointer-events: none;
+    z-index: 9999;
+    animation: float-up 2s ease-out forwards;
+}
+
+@keyframes float-up {
+    0% {
+        transform: translateY(0) scale(0) rotate(0deg);
+        opacity: 1;
+    }
+    50% {
+        transform: translateY(-50px) scale(1.2) rotate(180deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-150px) scale(0.5) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* Эффект при наведении */
+.character-avatar-container:hover {
+    box-shadow: 0 0 30px rgba(255, 105, 180, 0.5);
+}

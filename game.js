@@ -141,6 +141,22 @@ class EchoGame {
                     this.vrmAvatar.lookAt(x, y + 1.35, 0);
                 }
             });
+            
+            // Клик по аватару - Аня реагирует
+            const avatarContainer = document.querySelector('.character-avatar-container');
+            if (avatarContainer) {
+                avatarContainer.style.cursor = 'pointer';
+                
+                avatarContainer.addEventListener('click', (e) => {
+                    this.pokeAnya(e);
+                });
+                
+                // Для мобильных - touch
+                avatarContainer.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    this.pokeAnya(e.touches[0]);
+                });
+            }
                 
             } catch (error) {
                 console.error('Ошибка инициализации VRM:', error);
@@ -167,6 +183,84 @@ class EchoGame {
         }
     }
     
+    // Тыкаем по Ане - она реагирует
+    pokeAnya(event) {
+        if (!this.vrmAvatar || !this.vrmAvatar.isLoaded) return;
+        
+        // Реплики Ани
+        const phrases = [
+            'Ой! 💕',
+            'Ай~ 💗',
+            'Хи-хи 💖',
+            'Щекотно! 💓',
+            'Ещё! 💝',
+            'Мм~ 💞',
+            'Приятно... 💘'
+        ];
+        
+        const phrase = phrases[Math.floor(Math.random() * phrases.length)];
+        
+        // Показываем реплику
+        this.showPokeMessage(phrase);
+        
+        // Создаём сердечки
+        const rect = event.target.getBoundingClientRect();
+        const x = event.clientX || (rect.left + rect.width / 2);
+        const y = event.clientY || (rect.top + rect.height / 2);
+        
+        for (let i = 0; i < 5; i++) {
+            setTimeout(() => {
+                this.createHeart(x, y);
+            }, i * 100);
+        }
+        
+        // Аня моргает и улыбается
+        if (this.vrmAvatar) {
+            this.vrmAvatar.react('blink');
+            this.vrmAvatar.setMood('happy');
+            setTimeout(() => {
+                this.vrmAvatar.setMood(this.anyaState.currentMood);
+            }, 2000);
+        }
+        
+        // Немного повышаем настроение
+        if (this.anyaState) {
+            this.anyaState.mood = Math.min(100, this.anyaState.mood + 1);
+            this.updateUI();
+        }
+    }
+    
+    showPokeMessage(text) {
+        const message = document.createElement('div');
+        message.className = 'poke-message';
+        message.textContent = text;
+        
+        const container = document.querySelector('.character-avatar-container');
+        container.appendChild(message);
+        
+        setTimeout(() => {
+            message.classList.add('fade-out');
+            setTimeout(() => message.remove(), 500);
+        }, 1500);
+    }
+    
+    createHeart(x, y) {
+        const heart = document.createElement('div');
+        heart.className = 'floating-heart';
+        heart.textContent = '💖';
+        
+        // Случайное смещение
+        const offsetX = (Math.random() - 0.5) * 50;
+        const offsetY = (Math.random() - 0.5) * 30;
+        
+        heart.style.left = (x + offsetX) + 'px';
+        heart.style.top = (y + offsetY) + 'px';
+        
+        document.body.appendChild(heart);
+        
+        // Удаляем после анимации
+        setTimeout(() => heart.remove(), 2000);
+    }
 
     
     applySignalNoise() {
