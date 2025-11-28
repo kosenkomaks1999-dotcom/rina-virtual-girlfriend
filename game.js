@@ -65,7 +65,19 @@ class EchoGame {
     
     initTelegram() {
         // Расширяем приложение на весь экран
-        this.tg.expand();
+        if (this.tg && this.tg.expand) {
+            this.tg.expand();
+        }
+        
+        // Включаем вертикальные свайпы
+        if (this.tg && this.tg.enableVerticalSwipes) {
+            this.tg.enableVerticalSwipes();
+        }
+        
+        // Блокируем закрытие свайпом вниз
+        if (this.tg && this.tg.disableVerticalSwipes) {
+            this.tg.disableVerticalSwipes();
+        }
         
         // Устанавливаем цвет заголовка (только если поддерживается)
         if (this.tg.setHeaderColor) {
