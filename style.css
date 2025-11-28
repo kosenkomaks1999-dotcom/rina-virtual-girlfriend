@@ -821,3 +821,138 @@ button, .choice-button, .menu-button, .work-button, .shop-buy-button, .back-butt
     opacity: 0.3;
     cursor: not-allowed;
 }
+
+
+/* ========================================
+   АДАПТИВНЫЙ ДИЗАЙН ДЛЯ МОБИЛЬНЫХ
+   ======================================== */
+
+/* Планшеты и маленькие экраны */
+@media (max-width: 768px) {
+    .character-panel {
+        flex-direction: column;
+        padding: 8px;
+        gap: 8px;
+    }
+    
+    .character-avatar-container {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .character-name {
+        font-size: 1.2em;
+        margin: 5px 0;
+    }
+    
+    .status-bars {
+        width: 100%;
+    }
+    
+    .status-bar {
+        font-size: 0.9em;
+    }
+    
+    .bar-container {
+        min-width: 100px;
+    }
+}
+
+/* Мобильные телефоны */
+@media (max-width: 480px) {
+    .terminal-container {
+        padding: 3px;
+    }
+    
+    .terminal-header, .terminal-footer {
+        padding: 3px 5px;
+        font-size: 0.85em;
+    }
+    
+    .character-panel {
+        flex-direction: row;
+        flex-wrap: wrap;
+        padding: 5px;
+        gap: 5px;
+    }
+    
+    .character-avatar-container {
+        width: 80px;
+        height: 80px;
+        flex-shrink: 0;
+    }
+    
+    .character-name {
+        font-size: 1em;
+        margin: 0;
+        flex: 0 0 auto;
+    }
+    
+    .status-bars {
+        flex: 1 1 100%;
+        width: 100%;
+        gap: 3px;
+    }
+    
+    .status-bar {
+        font-size: 0.8em;
+        flex-direction: row;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .status-label {
+        min-width: 80px;
+        flex-shrink: 0;
+    }
+    
+    .bar-container {
+        flex: 1;
+        min-width: 80px;
+        height: 12px;
+    }
+    
+    .bar-fill {
+        height: 12px;
+    }
+    
+    .status-value {
+        min-width: 35px;
+        text-align: right;
+        flex-shrink: 0;
+    }
+}
+
+/* Очень маленькие экраны */
+@media (max-width: 360px) {
+    .character-avatar-container {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .character-name {
+        font-size: 0.9em;
+    }
+    
+    .status-bar {
+        font-size: 0.75em;
+    }
+    
+    .status-label {
+        min-width: 70px;
+    }
+    
+    .bar-container {
+        min-width: 60px;
+        height: 10px;
+    }
+    
+    .bar-fill {
+        height: 10px;
+    }
+    
+    .status-value {
+        min-width: 30px;
+        font-size: 0.8em;
+    }
+}
